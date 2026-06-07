@@ -29,12 +29,36 @@
   /* ── LANG BAR ── */
   .lang-bar {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+    align-items: center;
     gap: 0;
     padding: 12px 32px;
     border-bottom: 0.5px solid var(--border);
     background: var(--bg);
   }
+
+  .text-scale {
+    display: flex;
+    gap: 0;
+  }
+
+  .scale-btn {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    color: var(--light);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 10px;
+    border-right: 0.5px solid var(--border);
+    transition: color 0.15s;
+    line-height: 1;
+  }
+  .scale-btn:last-child { border-right: none; }
+  .scale-btn:hover { color: var(--black); }
+  .scale-btn.scale-down { font-size: 9px; }
+  .scale-btn.scale-reset { font-size: 11px; }
+  .scale-btn.scale-up { font-size: 13px; }
 
   .lang-btn {
     font-family: 'Montserrat', sans-serif;
@@ -528,10 +552,17 @@
 <!-- ── CUSTOMER VIEW ── -->
 <div id="customer-view">
   <div class="lang-bar">
-    <button class="lang-btn active" onclick="setLang('en')">EN</button>
-    <button class="lang-btn" onclick="setLang('zh')">中</button>
-    <button class="lang-btn" onclick="setLang('ko')">한</button>
-    <button class="lang-btn" onclick="setLang('ja')">日</button>
+    <div class="text-scale" role="group" aria-label="Text size">
+      <button class="scale-btn scale-down" onclick="adjustTextScale(-1)" aria-label="Decrease text size">A</button>
+      <button class="scale-btn scale-reset" onclick="adjustTextScale(0)" aria-label="Reset text size">A</button>
+      <button class="scale-btn scale-up" onclick="adjustTextScale(1)" aria-label="Increase text size">A</button>
+    </div>
+    <div>
+      <button class="lang-btn active" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('zh')">中</button>
+      <button class="lang-btn" onclick="setLang('ko')">한</button>
+      <button class="lang-btn" onclick="setLang('ja')">日</button>
+    </div>
   </div>
 
   <div class="header">
@@ -1235,10 +1266,40 @@ function updateSubmitState() {
   document.getElementById(id).addEventListener('change', updateSubmitState);
 });
 
+// ── TEXT SCALE ──
+const TEXT_SCALE_LEVELS = [0.875, 1, 1.125, 1.25];
+const TEXT_SCALE_KEY = 'mykita_text_scale';
+let textScaleIndex = 1;
+
+function applyTextScale() {
+  const scale = TEXT_SCALE_LEVELS[textScaleIndex];
+  const cv = document.getElementById('customer-view');
+  if (cv) cv.style.zoom = scale;
+  localStorage.setItem(TEXT_SCALE_KEY, String(textScaleIndex));
+}
+
+function adjustTextScale(direction) {
+  if (direction === 0) {
+    textScaleIndex = TEXT_SCALE_LEVELS.indexOf(1);
+  } else {
+    textScaleIndex = Math.min(TEXT_SCALE_LEVELS.length - 1, Math.max(0, textScaleIndex + direction));
+  }
+  applyTextScale();
+}
+
+function initTextScale() {
+  const saved = parseInt(localStorage.getItem(TEXT_SCALE_KEY), 10);
+  if (!isNaN(saved) && TEXT_SCALE_LEVELS[saved] !== undefined) {
+    textScaleIndex = saved;
+  }
+  applyTextScale();
+}
+
 // ── INIT ──
 initAutocomplete();
 checkAdminMode();
 updateSubmitState();
+initTextScale();
 </script>
 </body>
 </html>
