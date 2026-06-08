@@ -636,6 +636,17 @@
     cursor: pointer;
   }
   .logout-btn:hover { color: var(--black); border-color: var(--black); }
+
+  /* Prevent iOS Safari from auto-zooming the page when a text field is
+     focused — it only zooms when the focused field's font-size is below 16px. */
+  @media (max-width: 600px) {
+    .field input[type="text"],
+    .field input[type="email"],
+    .field select,
+    .ac-input {
+      font-size: 16px;
+    }
+  }
 </style>
 </head>
 <body>
