@@ -688,7 +688,7 @@
 
   <div id="scale-viewport">
   <div id="scale-content">
-  <div class="header">
+  <div class="header" id="customer-logo" onclick="handleLogoTap()">
     <div class="logo" id="hdr-title">Frame Warranty Registration</div>
     <div class="logo-sub" id="hdr-sub">MYKITA OSAKA</div>
   </div>
@@ -1170,8 +1170,30 @@ function show(id) {
 // ── ADMIN ──
 function checkAdminMode() {
   if (window.location.search.includes('mode=admin') || window.location.hash === '#admin') {
-    document.getElementById('customer-view').style.display = 'none';
-    document.getElementById('admin-gate').style.display = 'block';
+    openAdminGate();
+  }
+}
+
+function openAdminGate() {
+  document.getElementById('customer-view').style.display = 'none';
+  document.getElementById('admin-gate').style.display = 'block';
+}
+
+// ── HIDDEN ADMIN ACCESS (5 taps on the logo within 2 seconds) ──
+const LOGO_TAP_COUNT = 5;
+const LOGO_TAP_WINDOW_MS = 2000;
+let logoTapCount = 0;
+let logoTapTimer = null;
+
+function handleLogoTap() {
+  logoTapCount++;
+  if (logoTapTimer) clearTimeout(logoTapTimer);
+  logoTapTimer = setTimeout(() => { logoTapCount = 0; }, LOGO_TAP_WINDOW_MS);
+
+  if (logoTapCount >= LOGO_TAP_COUNT) {
+    logoTapCount = 0;
+    clearTimeout(logoTapTimer);
+    openAdminGate();
   }
 }
 
