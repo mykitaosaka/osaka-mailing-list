@@ -122,6 +122,14 @@
   .lang-btn:last-child { border-right: none; }
   .lang-btn.active, .lang-btn:hover { color: var(--black); }
 
+  /* ── TEXT SCALE CONTENT ── */
+  #scale-viewport {
+    overflow: hidden;
+  }
+  #scale-content {
+    transform-origin: top left;
+  }
+
   /* ── HEADER ── */
   .header {
     text-align: center;
@@ -650,6 +658,7 @@
     </div>
   </div>
 
+  <div id="scale-viewport">
   <div id="scale-content">
   <div class="header">
     <div class="logo" id="hdr-title">Frame Warranty Registration</div>
@@ -739,6 +748,7 @@
       </div>
       <button class="submit-btn" id="btn-done" style="margin-top:24px;" onclick="resetForm()">Done</button>
     </div>
+  </div>
   </div>
   </div>
 </div>
@@ -1399,7 +1409,12 @@ let textScale = TEXT_SCALE_DEFAULT;
 function applyTextScale(scale) {
   textScale = scale;
   const cv = document.getElementById('scale-content');
-  if (cv) cv.style.zoom = scale;
+  const vp = document.getElementById('scale-viewport');
+  if (cv && vp) {
+    cv.style.width = (100 / scale) + '%';
+    cv.style.transform = 'scale(' + scale + ')';
+    vp.style.height = (cv.offsetHeight * scale) + 'px';
+  }
   localStorage.setItem(TEXT_SCALE_KEY, String(scale));
 }
 
@@ -1416,6 +1431,17 @@ function initTextScale() {
     });
   }
   applyTextScale(textScale);
+
+  const cv = document.getElementById('scale-content');
+  const vp = document.getElementById('scale-viewport');
+  if (cv && vp && window.ResizeObserver) {
+    new ResizeObserver(function() {
+      vp.style.height = (cv.offsetHeight * textScale) + 'px';
+    }).observe(cv);
+  }
+  window.addEventListener('resize', function() {
+    if (cv && vp) vp.style.height = (cv.offsetHeight * textScale) + 'px';
+  });
 }
 
 // ── INIT ──
