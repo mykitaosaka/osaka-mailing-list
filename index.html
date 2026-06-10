@@ -550,6 +550,23 @@
   }
   .clear-btn:hover { background: #fff0f0; }
 
+  .refresh-btn {
+    font-family: 'Inter', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: var(--bg);
+    color: var(--black);
+    border: 0.5px solid var(--border);
+    height: 36px;
+    padding: 0 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .refresh-btn:hover { background: var(--bg2); }
+  .refresh-btn:disabled { opacity: 0.5; cursor: default; }
+
   .count-badge {
     font-size: 10px;
     font-weight: 500;
@@ -824,6 +841,7 @@
         <span class="count-badge" id="admin-count">0 records</span>
       </div>
       <div class="admin-controls">
+        <button class="refresh-btn" id="refresh-btn" onclick="refreshRecords()">&#8635; Refresh</button>
         <select class="csv-filter" id="csv-filter">
           <option value="all">All Opt-ins</option>
           <option value="yes">Yes Only</option>
@@ -1235,6 +1253,24 @@ async function checkPw() {
     errEl.textContent = 'Connection error. Please try again.';
   } finally {
     if (btn) btn.disabled = false;
+  }
+}
+
+async function refreshRecords() {
+  const btn = document.getElementById('refresh-btn');
+  btn.disabled = true;
+  try {
+    const json = await adminRequest({});
+    if (json.ok) {
+      adminRecords = json.records || [];
+      renderAdminTable();
+    } else {
+      alert('Failed to refresh. Please try again.');
+    }
+  } catch (err) {
+    alert('Connection error. Please try again.');
+  } finally {
+    btn.disabled = false;
   }
 }
 
