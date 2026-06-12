@@ -590,6 +590,13 @@
   tbody tr:last-child { border-bottom: none; }
   tbody tr:hover { background: var(--bg2); }
 
+  tbody tr.row-deleting {
+    transition: opacity 0.35s ease-out, background-color 0.35s ease-out;
+    background: #fde8e8 !important;
+    opacity: 0;
+    pointer-events: none;
+  }
+
   tbody td {
     padding: 10px 14px;
     color: var(--black);
@@ -1553,6 +1560,11 @@ async function deleteRecord(row) {
     const json = await adminRequest({ op: 'delete', row: row });
     if (json.ok) {
       adminRecords = adminRecords.filter(r => r.row !== row);
+      const tr = document.querySelector(`#admin-tbody tr[data-row="${row}"]`);
+      if (tr) {
+        tr.classList.add('row-deleting');
+        await new Promise(resolve => setTimeout(resolve, 350));
+      }
       renderAdminTable();
     } else {
       alert('Failed to delete the record. Please try again.');
