@@ -1433,8 +1433,10 @@ function logout() {
 // ── ADMIN AUTO-LOGOUT ──
 const ADMIN_IDLE_TIMEOUT_MS = 10 * 60 * 1000;
 let idleTimer = null;
+let lastActivity = 0;
 
 function startIdleTimer() {
+  lastActivity = Date.now();
   clearTimeout(idleTimer);
   idleTimer = setTimeout(() => {
     if (!isAdmin) return;
@@ -1448,6 +1450,23 @@ function startIdleTimer() {
     if (isAdmin) startIdleTimer();
   }, { passive: true });
 });
+
+// setTimeout is paused/throttled while the screen is off or the tab is
+// backgrounded, so on resume check elapsed wall-clock time as well.
+function checkIdleOnResume() {
+  if (!isAdmin) return;
+  if (Date.now() - lastActivity >= ADMIN_IDLE_TIMEOUT_MS) {
+    logout();
+    alert('You have been logged out due to inactivity.');
+  } else {
+    startIdleTimer();
+  }
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') checkIdleOnResume();
+});
+window.addEventListener('focus', checkIdleOnResume);
 
 function escapeHtml(str) {
   return String(str)
