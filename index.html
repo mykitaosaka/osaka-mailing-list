@@ -793,6 +793,36 @@
     margin-bottom: 8px;
   }
 
+  .mail-modal-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .mail-ja-toggle-btn {
+    font-family: 'Inter', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.05em;
+    color: var(--mid);
+    background: none;
+    border: 0.5px solid var(--border);
+    padding: 4px 10px;
+    cursor: pointer;
+    border-radius: 0;
+  }
+
+  .mail-ja-toggle-btn:hover {
+    color: var(--black);
+    border-color: var(--black);
+  }
+
+  .mail-ja-preview {
+    margin-top: 8px;
+    background: var(--bg-alt, #f7f7f5);
+    color: var(--mid);
+  }
+
   .mail-template-select {
     font-family: 'Inter', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
     width: 100%;
@@ -1054,8 +1084,12 @@
         <select class="mail-template-select" id="mail-template-select" onchange="applyMailTemplate()"></select>
       </div>
       <div class="mail-modal-field">
-        <label>Message</label>
+        <div class="mail-modal-label-row">
+          <label style="margin-bottom:0;">Message</label>
+          <button type="button" class="mail-ja-toggle-btn" id="mail-ja-toggle" onclick="toggleJaPreview()">日本語訳を確認</button>
+        </div>
         <textarea class="mail-textarea" id="mail-textarea"></textarea>
+        <textarea class="mail-textarea mail-ja-preview" id="mail-ja-preview" readonly style="display:none;"></textarea>
       </div>
       <div class="mail-modal-actions">
         <button class="refresh-btn" onclick="closeMailModal()">Close</button>
@@ -1819,7 +1853,8 @@ const MAIL_TEMPLATES = [
   {
     id: 'confirmation',
     label: 'Thank You / Registration Confirmation',
-    body: (r) => `Dear ${r.name},\n\nThank you very much for purchasing a MYKITA frame.\n\nWe are writing to confirm that your frame warranty registration has been completed successfully.\n\nIf you have any questions, please feel free to contact us.\n\nWe hope you enjoy your MYKITA frame for many years to come, and we look forward to welcoming you again.\n\nMYKITA OSAKA`
+    body: (r) => `Dear ${r.name},\n\nThank you very much for purchasing a MYKITA frame.\n\nWe are writing to confirm that your frame warranty registration has been completed successfully.\n\nIf you have any questions, please feel free to contact us.\n\nWe hope you enjoy your MYKITA frame for many years to come, and we look forward to welcoming you again.\n\nMYKITA OSAKA`,
+    jaBody: (r) => `${r.name} 様\n\nこのたびはMYKITAフレームをお買い上げいただき、心より御礼申し上げます。\n\nフレーム保証のご登録が完了いたしましたので、ご確認のためご連絡いたします。\n\nご不明な点がございましたら、お気軽にお問い合わせください。\n\nこれからも末永くMYKITAフレームをご愛用いただけますと幸いです。今後とも変わらぬご愛顧を賜りますよう、何卒よろしくお願い申し上げます。\n\nMYKITA OSAKA`
   },
   {
     id: 'confirmation_note',
@@ -1829,21 +1864,30 @@ const MAIL_TEMPLATES = [
         ? `Regarding "${r.note}" that we discussed during your visit, please feel free to bring it up again the next time you visit us.\n\n`
         : '';
       return `Dear ${r.name},\n\nThank you very much for purchasing a MYKITA frame.\n\n${noteSection}We are writing to confirm that your frame warranty registration has been completed successfully.\n\nIf you have any questions, please feel free to contact us.\n\nWe hope you enjoy your MYKITA frame for many years to come, and we look forward to welcoming you again.\n\nMYKITA OSAKA`;
+    },
+    jaBody: (r) => {
+      const noteSection = r.note
+        ? `ご来店の際にお話しした「${r.note}」について、またのご来店の際にぜひお声かけください。\n\n`
+        : '';
+      return `${r.name} 様\n\nこのたびはMYKITAフレームをお買い上げいただき、心より御礼申し上げます。\n\n${noteSection}フレーム保証のご登録が完了いたしましたので、ご確認のためご連絡いたします。\n\nご不明な点がございましたら、お気軽にお問い合わせください。\n\nこれからも末永くMYKITAフレームをご愛用いただけますと幸いです。今後とも変わらぬご愛顧を賜りますよう、何卒よろしくお願い申し上げます。\n\nMYKITA OSAKA`;
     }
   },
   {
     id: 'followup',
     label: 'Promotional Follow-up',
-    body: (r) => `Dear ${r.name},\n\nThank you for your interest in MYKITA JAPAN. We'd love to keep you updated on our latest collections, exclusive offers, and news.\n\nBest regards,\nMYKITA JAPAN`
+    body: (r) => `Dear ${r.name},\n\nThank you for your interest in MYKITA JAPAN. We'd love to keep you updated on our latest collections, exclusive offers, and news.\n\nBest regards,\nMYKITA JAPAN`,
+    jaBody: (r) => `${r.name} 様\n\nMYKITA JAPANにご関心をお寄せいただき、ありがとうございます。最新コレクションや特別なオファー、ニュースなどの情報をお届けできればと思います。\n\nMYKITA JAPAN`
   },
   {
     id: 'blank',
     label: 'Blank',
-    body: (r) => ''
+    body: (r) => '',
+    jaBody: (r) => ''
   }
 ];
 
 let currentMailRecord = null;
+let showJaPreview = false;
 
 function openMailCompose(record) {
   currentMailRecord = record;
@@ -1851,6 +1895,9 @@ function openMailCompose(record) {
   const select = document.getElementById('mail-template-select');
   select.innerHTML = MAIL_TEMPLATES.map(t => `<option value="${t.id}">${escapeHtml(t.label)}</option>`).join('');
   select.value = MAIL_TEMPLATES[0].id;
+  showJaPreview = false;
+  document.getElementById('mail-ja-preview').style.display = 'none';
+  document.getElementById('mail-ja-toggle').textContent = '日本語訳を確認';
   applyMailTemplate();
   document.getElementById('mail-modal-overlay').classList.add('active');
 }
@@ -1859,6 +1906,13 @@ function applyMailTemplate() {
   const select = document.getElementById('mail-template-select');
   const tpl = MAIL_TEMPLATES.find(t => t.id === select.value);
   document.getElementById('mail-textarea').value = tpl ? tpl.body(currentMailRecord) : '';
+  document.getElementById('mail-ja-preview').value = tpl ? tpl.jaBody(currentMailRecord) : '';
+}
+
+function toggleJaPreview() {
+  showJaPreview = !showJaPreview;
+  document.getElementById('mail-ja-preview').style.display = showJaPreview ? '' : 'none';
+  document.getElementById('mail-ja-toggle').textContent = showJaPreview ? '日本語訳を閉じる' : '日本語訳を確認';
 }
 
 function closeMailModal() {
