@@ -1822,6 +1822,21 @@ const MAIL_TEMPLATES = [
     body: (r) => `Dear ${r.name},\n\nThank you very much for visiting MYKITA OSAKA and for choosing a MYKITA frame.\n\nThis email also serves as confirmation that your warranty registration has been completed successfully.\n\nIf you have any questions, please feel free to contact us.\n\nBest regards,\nMYKITA OSAKA`
   },
   {
+    id: 'confirmation_ja',
+    label: 'お礼・登録完了のご案内（日本語）',
+    body: (r) => `${r.name} 様\n\nこのたびはMYKITAフレームをお買い上げいただき、心より御礼申し上げます。\n\nフレーム保証のご登録が完了いたしましたので、ご確認のためご連絡いたします。\n\nご不明な点がございましたら、お気軽にお問い合わせください。\n\nこれからも末永くMYKITAフレームをご愛用いただけますと幸いです。今後とも変わらぬご愛顧を賜りますよう、何卒よろしくお願い申し上げます。\n\nMYKITA OSAKA`
+  },
+  {
+    id: 'confirmation_ja_note',
+    label: 'お礼・登録完了のご案内（接客メモを反映）',
+    body: (r) => {
+      const noteSection = r.note
+        ? `ご来店の際にお話しした「${r.note}」について、またのご来店の際にぜひお声かけください。\n\n`
+        : '';
+      return `${r.name} 様\n\nこのたびはMYKITAフレームをお買い上げいただき、心より御礼申し上げます。\n\n${noteSection}フレーム保証のご登録が完了いたしましたので、ご確認のためご連絡いたします。\n\nご不明な点がございましたら、お気軽にお問い合わせください。\n\nこれからも末永くMYKITAフレームをご愛用いただけますと幸いです。今後とも変わらぬご愛顧を賜りますよう、何卒よろしくお願い申し上げます。\n\nMYKITA OSAKA`;
+    }
+  },
+  {
     id: 'followup',
     label: 'Promotional Follow-up',
     body: (r) => `Dear ${r.name},\n\nThank you for your interest in MYKITA JAPAN. We'd love to keep you updated on our latest collections, exclusive offers, and news.\n\nBest regards,\nMYKITA JAPAN`
