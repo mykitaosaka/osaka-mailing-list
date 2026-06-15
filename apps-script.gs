@@ -4,14 +4,14 @@
  * resulting /exec URL into SHEET_WEBHOOK_URL in index.html.
  *
  * Spreadsheet column order:
- * Timestamp | Name | Email | Opt-in | Country | Language | 会員番号 | Follow-up Sent | Staff Notes
+ * Timestamp | 会員番号 | Name | Email | Opt-in | Country | Language | Follow-up Sent | Staff Notes
  * (会員番号 is filled in manually in the sheet, so it is left blank here.)
  */
 function doPost(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = JSON.parse(e.postData.contents);
 
-  var headers = ['Timestamp', 'Name', 'Email', 'Opt-in', 'Country', 'Language', '会員番号', 'Follow-up Sent', 'Staff Notes'];
+  var headers = ['Timestamp', '会員番号', 'Name', 'Email', 'Opt-in', 'Country', 'Language', 'Follow-up Sent', 'Staff Notes'];
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(headers);
   }
@@ -23,12 +23,12 @@ function doPost(e) {
 
   sheet.appendRow([
     data.timestamp || '',
+    data.memberNo || '',
     data.name || '',
     data.email || '',
     data.optin ? 'Yes' : 'No',
     country,
     (data.lang || '').toUpperCase(),
-    data.memberNo || '',
     '',
     ''
   ]);
@@ -114,12 +114,12 @@ function readRecords(sheet) {
     records.push({
       row: i + 2,
       timestamp: row[0] instanceof Date ? row[0].toISOString() : String(row[0] || ''),
-      name: row[1] || '',
-      email: row[2] || '',
-      optin: row[3] || '',
-      country: row[4] || '',
-      lang: row[5] || '',
-      memberNo: row[6] || '',
+      memberNo: row[1] || '',
+      name: row[2] || '',
+      email: row[3] || '',
+      optin: row[4] || '',
+      country: row[5] || '',
+      lang: row[6] || '',
       followupStatus: row[7] === 'Yes' ? 'sent' : row[7] === 'N/A' ? 'na' : '',
       note: row[8] || ''
     });
