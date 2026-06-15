@@ -1861,23 +1861,23 @@ const MAIL_TEMPLATES = [
   {
     id: 'confirmation',
     label: 'Thank You / Registration Confirmation',
-    body: (r) => `Dear ${r.name},\n\nThank you very much for purchasing a MYKITA frame.\n\nWe are writing to confirm that your frame warranty registration has been completed successfully.\n\nIf you have any questions, please feel free to contact us.\n\nWe hope you enjoy your MYKITA frame for many years to come, and we look forward to welcoming you again.\n\nMYKITA OSAKA`,
-    jaBody: (r) => `${r.name} 様\n\nこのたびはMYKITAフレームをお買い上げいただき、心より御礼申し上げます。\n\nフレーム保証のご登録が完了いたしましたので、ご確認のためご連絡いたします。\n\nご不明な点がございましたら、お気軽にお問い合わせください。\n\nこれからも末永くMYKITAフレームをご愛用いただけますと幸いです。今後とも変わらぬご愛顧を賜りますよう、何卒よろしくお願い申し上げます。\n\nMYKITA OSAKA`
+    body: (r) => `Dear ${r.name} san,\n\nThank you very much for visiting our store yesterday.\n\nIt was a pleasure meeting you and talking with you.\n\nWe hope you will enjoy your new MYKITA glasses.\nShould you require any maintenance or adjustments, please feel free to visit our store at any time. We would be delighted to assist you.\n\nWe look forward to welcoming you again on your next visit to Japan.\n\n\nKind regards,\n\nMYKITA Osaka\nGoogle Map Link | https://share.google/mw7yBJWFXs3xLcj1Y`,
+    jaBody: (r) => `${r.name} 様\n\n昨日はご来店いただき、誠にありがとうございました。\n\nお会いしてお話しできましたこと、大変嬉しく思っております。\n\n新しいMYKITAのメガネをお楽しみいただけますと幸いです。\nメンテナンスや調整などが必要な際は、お気軽にいつでもご来店ください。喜んでお手伝いさせていただきます。\n\n次回日本にお越しの際も、お会いできることを楽しみにしております。\n\n\nどうぞよろしくお願いいたします。\n\nMYKITA Osaka\nGoogle Map Link | https://share.google/mw7yBJWFXs3xLcj1Y`
   },
   {
     id: 'confirmation_note',
     label: 'Thank You / Registration Confirmation (with notes)',
     body: (r) => {
-      const noteSection = r.note
-        ? `Regarding "${r.note}" that we discussed during your visit, please feel free to bring it up again the next time you visit us.\n\n`
-        : '';
-      return `Dear ${r.name},\n\nThank you very much for purchasing a MYKITA frame.\n\n${noteSection}We are writing to confirm that your frame warranty registration has been completed successfully.\n\nIf you have any questions, please feel free to contact us.\n\nWe hope you enjoy your MYKITA frame for many years to come, and we look forward to welcoming you again.\n\nMYKITA OSAKA`;
+      const talk = r.note
+        ? `talking with you about ${r.note}`
+        : 'talking with you';
+      return `Dear ${r.name} san,\n\nThank you very much for visiting our store yesterday.\n\nIt was a pleasure meeting you and ${talk}.\n\nWe hope you will enjoy your new MYKITA glasses.\nShould you require any maintenance or adjustments, please feel free to visit our store at any time. We would be delighted to assist you.\n\nWe look forward to welcoming you again on your next visit to Japan.\n\n\nKind regards,\n\nMYKITA Osaka\nGoogle Map Link | https://share.google/mw7yBJWFXs3xLcj1Y`;
     },
     jaBody: (r) => {
-      const noteSection = r.note
-        ? `ご来店の際にお話しした「${r.note}」について、またのご来店の際にぜひお声かけください。\n\n`
-        : '';
-      return `${r.name} 様\n\nこのたびはMYKITAフレームをお買い上げいただき、心より御礼申し上げます。\n\n${noteSection}フレーム保証のご登録が完了いたしましたので、ご確認のためご連絡いたします。\n\nご不明な点がございましたら、お気軽にお問い合わせください。\n\nこれからも末永くMYKITAフレームをご愛用いただけますと幸いです。今後とも変わらぬご愛顧を賜りますよう、何卒よろしくお願い申し上げます。\n\nMYKITA OSAKA`;
+      const talk = r.note
+        ? `「${r.note}」についてお話しできましたこと`
+        : 'お会いしてお話しできましたこと';
+      return `${r.name} 様\n\n昨日はご来店いただき、誠にありがとうございました。\n\n${talk}、大変嬉しく思っております。\n\n新しいMYKITAのメガネをお楽しみいただけますと幸いです。\nメンテナンスや調整などが必要な際は、お気軽にいつでもご来店ください。喜んでお手伝いさせていただきます。\n\n次回日本にお越しの際も、お会いできることを楽しみにしております。\n\n\nどうぞよろしくお願いいたします。\n\nMYKITA Osaka\nGoogle Map Link | https://share.google/mw7yBJWFXs3xLcj1Y`;
     }
   },
   {
