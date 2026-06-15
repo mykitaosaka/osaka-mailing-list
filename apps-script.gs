@@ -148,62 +148,66 @@ function generateTopicPhrase(note) {
     return { ok: false, error: 'CLAUDE_API_KEY not configured' };
   }
 
-  var prompt = 'A boutique staff member wrote this short note about a customer visit (it may be written in Japanese or English):\n"' + note + '"\n\n' +
-    'Generate two short natural clauses based on this note, for use in a thank-you email:\n' +
-    '- "en": a clause completing the English sentence "It was a pleasure meeting you and ___." ' +
-    'It can describe a topic discussed (e.g. "talking with you about your trip to Kyoto") or something done together ' +
-    '(e.g. "choosing your new frame together"), whichever fits the note best. If the note is written in Japanese, translate its meaning into natural English.\n' +
-    '- "ja": a clause completing the Japanese sentence "___、大変嬉しく思っております。" ' +
-    'expressed naturally in Japanese (e.g. "京都旅行のお話をお伺いできましたこと" or "一緒にフレームをお選びできましたこと").\n\n' +
-    'Respond with ONLY a JSON object on a single line, no markdown, no extra text: {"en": "...", "ja": "..."}';
-
-  var response = UrlFetchApp.fetch('https://api.anthropic.com/v1/messages', {
-    method: 'post',
-    contentType: 'application/json',
-    headers: {
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01'
-    },
-    payload: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 200,
-      messages: [{ role: 'user', content: prompt }]
-    }),
-    muteHttpExceptions: true
-  });
-
-  var responseCode = response.getResponseCode();
-  var body = JSON.parse(response.getContentText());
-  if (responseCode !== 200) {
-    var apiError = (body.error && body.error.message) || ('HTTP ' + responseCode);
-    return { ok: false, error: 'Claude API error: ' + apiError };
-  }
-
-  var textBlock = null;
-  for (var i = 0; i < (body.content || []).length; i++) {
-    if (body.content[i].type === 'text') {
-      textBlock = body.content[i];
-      break;
-    }
-  }
-  if (!textBlock) {
-    return { ok: false, error: 'no text in response' };
-  }
-
-  var text = textBlock.text.trim();
-  // Strip markdown code fences if present (e.g. ```json ... ```)
-  text = text.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim();
-
-  var parsed;
   try {
-    parsed = JSON.parse(text);
+    var prompt = 'A boutique staff member wrote this short note about a customer visit (it may be written in Japanese or English):\n"' + note + '"\n\n' +
+      'Generate two short natural clauses based on this note, for use in a thank-you email:\n' +
+      '- "en": a clause completing the English sentence "It was a pleasure meeting you and ___." ' +
+      'It can describe a topic discussed (e.g. "talking with you about your trip to Kyoto") or something done together ' +
+      '(e.g. "choosing your new frame together"), whichever fits the note best. If the note is written in Japanese, translate its meaning into natural English.\n' +
+      '- "ja": a clause completing the Japanese sentence "___、大変嬉しく思っております。" ' +
+      'expressed naturally in Japanese (e.g. "京都旅行のお話をお伺いできましたこと" or "一緒にフレームをお選びできましたこと").\n\n' +
+      'Respond with ONLY a JSON object on a single line, no markdown, no extra text: {"en": "...", "ja": "..."}';
+
+    var response = UrlFetchApp.fetch('https://api.anthropic.com/v1/messages', {
+      method: 'post',
+      contentType: 'application/json',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      payload: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 200,
+        messages: [{ role: 'user', content: prompt }]
+      }),
+      muteHttpExceptions: true
+    });
+
+    var responseCode = response.getResponseCode();
+    var body = JSON.parse(response.getContentText());
+    if (responseCode !== 200) {
+      var apiError = (body.error && body.error.message) || ('HTTP ' + responseCode);
+      return { ok: false, error: 'Claude API error: ' + apiError };
+    }
+
+    var textBlock = null;
+    for (var i = 0; i < (body.content || []).length; i++) {
+      if (body.content[i].type === 'text') {
+        textBlock = body.content[i];
+        break;
+      }
+    }
+    if (!textBlock) {
+      return { ok: false, error: 'no text in response' };
+    }
+
+    var text = textBlock.text.trim();
+    // Strip markdown code fences if present (e.g. ```json ... ```)
+    text = text.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim();
+
+    var parsed;
+    try {
+      parsed = JSON.parse(text);
+    } catch (err) {
+      return { ok: false, error: 'invalid response format: ' + text };
+    }
+
+    if (!parsed.en || !parsed.ja) {
+      return { ok: false, error: 'missing en/ja in response: ' + text };
+    }
+
+    return { ok: true, en: parsed.en, ja: parsed.ja };
   } catch (err) {
-    return { ok: false, error: 'invalid response format: ' + text };
+    return { ok: false, error: 'Exception: ' + err.message };
   }
-
-  if (!parsed.en || !parsed.ja) {
-    return { ok: false, error: 'missing en/ja in response: ' + text };
-  }
-
-  return { ok: true, en: parsed.en, ja: parsed.ja };
 }
