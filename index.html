@@ -1131,7 +1131,7 @@ let adminPassword = '';
 let adminRecords = [];
 
 // ── GOOGLE SHEET SYNC ──
-const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwgGDppnboQkp__SWxr29Qyy2sL-RjCdXVuqoDChzcWLOU4EOovG-3FV2jDuIu2bh_KbA/exec';
+const SHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxhNus3aCoUYCyEfIpmJCQsmvgMuXFHVbtntLpRx_N17lk-o44duZOAbU2bYZenrS2azw/exec';
 
 function sendToSheet(record) {
   if (!SHEET_WEBHOOK_URL) return;
@@ -1883,17 +1883,11 @@ const MAIL_TEMPLATES = [
     id: 'confirmation_note',
     label: 'Thank You / Registration Confirmation (with notes)',
     body: (r) => {
-      const topic = r.aiTopicEn || r.note;
-      const talk = topic
-        ? `talking with you about ${topic}`
-        : 'talking with you';
+      const talk = r.aiTopicEn || (r.note ? `talking with you about ${r.note}` : 'talking with you');
       return `Dear ${r.name} san,\n\nThank you very much for visiting our store yesterday.\n\nIt was a pleasure meeting you and ${talk}.\n\nWe hope you will enjoy your new MYKITA glasses.\nShould you require any maintenance or adjustments, please feel free to visit our store at any time. We would be delighted to assist you.\n\nWe look forward to welcoming you again on your next visit to Japan.\n\n\nKind regards,\n\nMYKITA Osaka\nGoogle Map Link | https://share.google/mw7yBJWFXs3xLcj1Y`;
     },
     jaBody: (r) => {
-      const topic = r.aiTopicJa || r.note;
-      const talk = topic
-        ? `「${topic}」についてお話しできましたこと`
-        : 'お会いしてお話しできましたこと';
+      const talk = r.aiTopicJa || (r.note ? `「${r.note}」についてお話しできましたこと` : 'お会いしてお話しできましたこと');
       return `${r.name} 様\n\n昨日はご来店いただき、誠にありがとうございました。\n\n${talk}、大変嬉しく思っております。\n\n新しいMYKITAのメガネをお楽しみいただけますと幸いです。\nメンテナンスや調整などが必要な際は、お気軽にいつでもご来店ください。喜んでお手伝いさせていただきます。\n\n次回日本にお越しの際も、お会いできることを楽しみにしております。\n\n\nどうぞよろしくお願いいたします。\n\nMYKITA Osaka\nGoogle Map Link | https://share.google/mw7yBJWFXs3xLcj1Y`;
     }
   },
