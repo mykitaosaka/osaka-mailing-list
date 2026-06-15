@@ -135,8 +135,8 @@ function readRecords(sheet) {
 }
 
 /**
- * Uses the Claude API to turn a short staff note into a natural topic
- * phrase for both the English and Japanese thank-you email templates.
+ * Uses the Claude API to turn a short staff note into a natural clause
+ * for both the English and Japanese thank-you email templates.
  */
 function generateTopicPhrase(note) {
   if (!note) {
@@ -148,10 +148,13 @@ function generateTopicPhrase(note) {
     return { ok: false, error: 'CLAUDE_API_KEY not configured' };
   }
 
-  var prompt = 'A boutique staff member wrote this short note about a topic discussed with a customer:\n"' + note + '"\n\n' +
-    'Rewrite it as a short natural phrase (a few words to one short clause) describing the topic, ' +
-    'suitable to complete the English sentence "It was a pleasure meeting you and talking with you about ___." ' +
-    'and the Japanese sentence "「___」についてお話しできましたこと". ' +
+  var prompt = 'A boutique staff member wrote this short note about a customer visit (it may be written in Japanese or English):\n"' + note + '"\n\n' +
+    'Generate two short natural clauses based on this note, for use in a thank-you email:\n' +
+    '- "en": a clause completing the English sentence "It was a pleasure meeting you and ___." ' +
+    'It can describe a topic discussed (e.g. "talking with you about your trip to Kyoto") or something done together ' +
+    '(e.g. "choosing your new frame together"), whichever fits the note best. If the note is written in Japanese, translate its meaning into natural English.\n' +
+    '- "ja": a clause completing the Japanese sentence "___、大変嬉しく思っております。" ' +
+    'expressed naturally in Japanese (e.g. "京都旅行のお話をお伺いできましたこと" or "一緒にフレームをお選びできましたこと").\n\n' +
     'Respond with ONLY a JSON object on a single line, no markdown, no extra text: {"en": "...", "ja": "..."}';
 
   var response = UrlFetchApp.fetch('https://api.anthropic.com/v1/messages', {
