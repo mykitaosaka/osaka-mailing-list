@@ -85,7 +85,7 @@ function handleAdminRequest(params) {
       return { ok: false, error: 'invalid row' };
     }
     var value = '';
-    if (params.status === 'sent') value = 'Yes';
+    if (params.status === 'sent') value = '✔︎';
     else if (params.status === 'na') value = 'N/A';
     sheet.getRange(fuRow, 8).setValue(value);
     return { ok: true };
@@ -120,7 +120,7 @@ function readRecords(sheet) {
       optin: row[4] || '',
       country: row[5] || '',
       lang: row[6] || '',
-      followupStatus: row[7] === 'Yes' ? 'sent' : row[7] === 'N/A' ? 'na' : '',
+      followupStatus: row[7] === '✔︎' ? 'sent' : row[7] === 'N/A' ? 'na' : '',
       note: row[8] || ''
     });
   }
