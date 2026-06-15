@@ -819,8 +819,16 @@
 
   .mail-ja-preview {
     margin-top: 8px;
+    min-height: 0;
+    height: auto;
+    max-height: 140px;
+    font-size: 10px;
+    line-height: 1.6;
+    padding: 8px 10px;
+    border: 0.5px dashed var(--border);
     background: var(--bg-alt, #f7f7f5);
     color: var(--mid);
+    resize: none;
   }
 
   .mail-template-select {
