@@ -817,6 +817,17 @@
     border-color: var(--black);
   }
 
+  .mail-ja-toggle-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .mail-ai-status {
+    margin-left: 10px;
+    font-size: 9px;
+    color: var(--mid);
+  }
+
   .mail-ja-preview {
     margin-top: 8px;
     min-height: 0;
@@ -1090,6 +1101,10 @@
       <div class="mail-modal-field">
         <label>Template</label>
         <select class="mail-template-select" id="mail-template-select" onchange="applyMailTemplate()"></select>
+      </div>
+      <div class="mail-modal-field" id="mail-ai-row" style="display:none;">
+        <button type="button" class="mail-ja-toggle-btn" id="mail-ai-generate" onclick="generateAiTopic()">AIで話題フレーズを生成</button>
+        <span class="mail-ai-status" id="mail-ai-status"></span>
       </div>
       <div class="mail-modal-field">
         <div class="mail-modal-label-row">
@@ -1868,14 +1883,16 @@ const MAIL_TEMPLATES = [
     id: 'confirmation_note',
     label: 'Thank You / Registration Confirmation (with notes)',
     body: (r) => {
-      const talk = r.note
-        ? `talking with you about ${r.note}`
+      const topic = r.aiTopicEn || r.note;
+      const talk = topic
+        ? `talking with you about ${topic}`
         : 'talking with you';
       return `Dear ${r.name} san,\n\nThank you very much for visiting our store yesterday.\n\nIt was a pleasure meeting you and ${talk}.\n\nWe hope you will enjoy your new MYKITA glasses.\nShould you require any maintenance or adjustments, please feel free to visit our store at any time. We would be delighted to assist you.\n\nWe look forward to welcoming you again on your next visit to Japan.\n\n\nKind regards,\n\nMYKITA Osaka\nGoogle Map Link | https://share.google/mw7yBJWFXs3xLcj1Y`;
     },
     jaBody: (r) => {
-      const talk = r.note
-        ? `「${r.note}」についてお話しできましたこと`
+      const topic = r.aiTopicJa || r.note;
+      const talk = topic
+        ? `「${topic}」についてお話しできましたこと`
         : 'お会いしてお話しできましたこと';
       return `${r.name} 様\n\n昨日はご来店いただき、誠にありがとうございました。\n\n${talk}、大変嬉しく思っております。\n\n新しいMYKITAのメガネをお楽しみいただけますと幸いです。\nメンテナンスや調整などが必要な際は、お気軽にいつでもご来店ください。喜んでお手伝いさせていただきます。\n\n次回日本にお越しの際も、お会いできることを楽しみにしております。\n\n\nどうぞよろしくお願いいたします。\n\nMYKITA Osaka\nGoogle Map Link | https://share.google/mw7yBJWFXs3xLcj1Y`;
     }
@@ -1899,6 +1916,8 @@ let showJaPreview = false;
 
 function openMailCompose(record) {
   currentMailRecord = record;
+  currentMailRecord.aiTopicEn = '';
+  currentMailRecord.aiTopicJa = '';
   document.getElementById('mail-recipient').textContent = record.name + '  <' + record.email + '>';
   const select = document.getElementById('mail-template-select');
   select.innerHTML = MAIL_TEMPLATES.map(t => `<option value="${t.id}">${escapeHtml(t.label)}</option>`).join('');
@@ -1906,6 +1925,8 @@ function openMailCompose(record) {
   showJaPreview = false;
   document.getElementById('mail-ja-preview').style.display = 'none';
   document.getElementById('mail-ja-toggle').textContent = '日本語訳を確認';
+  document.getElementById('mail-ai-status').textContent = '';
+  document.getElementById('mail-ai-generate').disabled = false;
   applyMailTemplate();
   document.getElementById('mail-modal-overlay').classList.add('active');
 }
@@ -1915,6 +1936,29 @@ function applyMailTemplate() {
   const tpl = MAIL_TEMPLATES.find(t => t.id === select.value);
   document.getElementById('mail-textarea').value = tpl ? tpl.body(currentMailRecord) : '';
   document.getElementById('mail-ja-preview').value = tpl ? tpl.jaBody(currentMailRecord) : '';
+  const aiRow = document.getElementById('mail-ai-row');
+  aiRow.style.display = (select.value === 'confirmation_note' && currentMailRecord.note) ? '' : 'none';
+}
+
+async function generateAiTopic() {
+  const btn = document.getElementById('mail-ai-generate');
+  const statusEl = document.getElementById('mail-ai-status');
+  btn.disabled = true;
+  statusEl.textContent = '生成中...';
+  try {
+    const json = await adminRequest({ op: 'generate', note: currentMailRecord.note });
+    if (json.ok) {
+      currentMailRecord.aiTopicEn = json.en || '';
+      currentMailRecord.aiTopicJa = json.ja || '';
+      applyMailTemplate();
+      statusEl.textContent = '生成しました';
+    } else {
+      statusEl.textContent = '生成に失敗しました: ' + (json.error || '');
+    }
+  } catch (err) {
+    statusEl.textContent = '生成に失敗しました';
+  }
+  btn.disabled = false;
 }
 
 function toggleJaPreview() {

@@ -46,6 +46,9 @@ function doPost(e) {
  *   action=admin & password=... & op=delete & row=N → delete row N
  *   action=admin & password=... & op=followup & row=N & status=pending|sent|na → set follow-up status
  *   action=admin & password=... & op=note & row=N & text=... → set staff notes
+ *   action=admin & password=... & op=generate & note=... → generate EN/JA topic phrase from staff notes via Claude API
+ *
+ * To use op=generate, set CLAUDE_API_KEY in Project Settings > Script Properties.
  */
 function doGet(e) {
   var params = e.parameter || {};
@@ -100,6 +103,10 @@ function handleAdminRequest(params) {
     return { ok: true };
   }
 
+  if (op === 'generate') {
+    return generateTopicPhrase(params.note || '');
+  }
+
   return { ok: true, records: readRecords(sheet) };
 }
 
@@ -125,4 +132,55 @@ function readRecords(sheet) {
     });
   }
   return records;
+}
+
+/**
+ * Uses the Claude API to turn a short staff note into a natural topic
+ * phrase for both the English and Japanese thank-you email templates.
+ */
+function generateTopicPhrase(note) {
+  if (!note) {
+    return { ok: false, error: 'empty note' };
+  }
+
+  var apiKey = PropertiesService.getScriptProperties().getProperty('CLAUDE_API_KEY');
+  if (!apiKey) {
+    return { ok: false, error: 'CLAUDE_API_KEY not configured' };
+  }
+
+  var prompt = 'A boutique staff member wrote this short note about a topic discussed with a customer:\n"' + note + '"\n\n' +
+    'Rewrite it as a short natural phrase (a few words to one short clause) describing the topic, ' +
+    'suitable to complete the English sentence "It was a pleasure meeting you and talking with you about ___." ' +
+    'and the Japanese sentence "「___」についてお話しできましたこと". ' +
+    'Respond with ONLY a JSON object on a single line, no markdown, no extra text: {"en": "...", "ja": "..."}';
+
+  var response = UrlFetchApp.fetch('https://api.anthropic.com/v1/messages', {
+    method: 'post',
+    contentType: 'application/json',
+    headers: {
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01'
+    },
+    payload: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 200,
+      messages: [{ role: 'user', content: prompt }]
+    }),
+    muteHttpExceptions: true
+  });
+
+  var body = JSON.parse(response.getContentText());
+  if (!body.content || !body.content[0]) {
+    return { ok: false, error: 'generation failed' };
+  }
+
+  var text = body.content[0].text.trim();
+  var parsed;
+  try {
+    parsed = JSON.parse(text);
+  } catch (err) {
+    return { ok: false, error: 'invalid response format' };
+  }
+
+  return { ok: true, en: parsed.en || '', ja: parsed.ja || '' };
 }
