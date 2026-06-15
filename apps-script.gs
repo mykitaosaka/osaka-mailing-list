@@ -172,18 +172,38 @@ function generateTopicPhrase(note) {
     muteHttpExceptions: true
   });
 
+  var responseCode = response.getResponseCode();
   var body = JSON.parse(response.getContentText());
-  if (!body.content || !body.content[0]) {
-    return { ok: false, error: 'generation failed' };
+  if (responseCode !== 200) {
+    var apiError = (body.error && body.error.message) || ('HTTP ' + responseCode);
+    return { ok: false, error: 'Claude API error: ' + apiError };
   }
 
-  var text = body.content[0].text.trim();
+  var textBlock = null;
+  for (var i = 0; i < (body.content || []).length; i++) {
+    if (body.content[i].type === 'text') {
+      textBlock = body.content[i];
+      break;
+    }
+  }
+  if (!textBlock) {
+    return { ok: false, error: 'no text in response' };
+  }
+
+  var text = textBlock.text.trim();
+  // Strip markdown code fences if present (e.g. ```json ... ```)
+  text = text.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim();
+
   var parsed;
   try {
     parsed = JSON.parse(text);
   } catch (err) {
-    return { ok: false, error: 'invalid response format' };
+    return { ok: false, error: 'invalid response format: ' + text };
   }
 
-  return { ok: true, en: parsed.en || '', ja: parsed.ja || '' };
+  if (!parsed.en || !parsed.ja) {
+    return { ok: false, error: 'missing en/ja in response: ' + text };
+  }
+
+  return { ok: true, en: parsed.en, ja: parsed.ja };
 }
