@@ -1104,7 +1104,7 @@
       </div>
       <div class="mail-modal-field" id="mail-ai-row" style="display:none;">
         <button type="button" class="mail-ja-toggle-btn" id="mail-ai-generate" onclick="generateAiTopic()">AIで話題フレーズを生成</button>
-        <span class="mail-ai-status" id="mail-ai-status"></span>
+        <span class="mail-ai-status" id="mail-ai-status">ノートの内容を反映するにはクリックしてください</span>
       </div>
       <div class="mail-modal-field">
         <div class="mail-modal-label-row">
@@ -1883,7 +1883,8 @@ const MAIL_TEMPLATES = [
     id: 'confirmation_note',
     label: 'Thank You / Registration Confirmation (with notes)',
     body: (r) => {
-      const talk = r.aiTopicEn || (r.note ? `talking with you about ${r.note}` : 'talking with you');
+      const isAscii = /^[\x00-\x7F]*$/.test(r.note || '');
+      const talk = r.aiTopicEn || (r.note && isAscii ? `talking with you about ${r.note}` : 'talking with you');
       return `Dear ${r.name} san,\n\nThank you very much for visiting our store yesterday.\n\nIt was a pleasure meeting you and ${talk}.\n\nWe hope you will enjoy your new MYKITA glasses.\nShould you require any maintenance or adjustments, please feel free to visit our store at any time. We would be delighted to assist you.\n\nWe look forward to welcoming you again on your next visit to Japan.\n\n\nKind regards,\n\nMYKITA Osaka\nGoogle Map Link | https://share.google/mw7yBJWFXs3xLcj1Y`;
     },
     jaBody: (r) => {
@@ -1919,7 +1920,7 @@ function openMailCompose(record) {
   showJaPreview = false;
   document.getElementById('mail-ja-preview').style.display = 'none';
   document.getElementById('mail-ja-toggle').textContent = '日本語訳を確認';
-  document.getElementById('mail-ai-status').textContent = '';
+  document.getElementById('mail-ai-status').textContent = 'ノートの内容を反映するにはクリックしてください';
   document.getElementById('mail-ai-generate').disabled = false;
   applyMailTemplate();
   document.getElementById('mail-modal-overlay').classList.add('active');
