@@ -977,7 +977,7 @@
         <p class="optin-desc" id="lbl-optin-q">Would you like to receive product updates, exclusive offers, and news from MYKITA OSAKA via email? <span class="req">*</span></p>
         <div class="check-row" style="gap:28px; margin-bottom:0;">
           <label class="check-text" style="display:flex; align-items:center; gap:8px;">
-            <input type="radio" name="f-optin" id="f-optin-yes" value="yes"> <span id="lbl-optin-yes">Yes</span>
+            <input type="radio" name="f-optin" id="f-optin-yes" value="yes" checked> <span id="lbl-optin-yes">Yes</span>
           </label>
           <label class="check-text" style="display:flex; align-items:center; gap:8px;">
             <input type="radio" name="f-optin" id="f-optin-no" value="no"> <span id="lbl-optin-no">No</span>
@@ -1432,7 +1432,7 @@ function resetForm() {
     oldEmail.parentNode.replaceChild(newEmail, oldEmail);
     newEmail.addEventListener('input', updateSubmitState);
     initEmailAutocomplete();
-    document.getElementById('f-optin-yes').checked = false;
+    document.getElementById('f-optin-yes').checked = true;
     document.getElementById('f-optin-no').checked = false;
     document.getElementById('f-agree').checked = false;
     ['f-name', 'f-country-input', 'f-email'].forEach(id => document.getElementById(id).classList.remove('err'));
