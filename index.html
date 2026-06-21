@@ -551,7 +551,11 @@
   #admin-gate .field input { text-align: center; letter-spacing: 0.1em; }
 
   #admin-panel { display: none; }
-  #admin-panel .main { max-width: 760px; }
+  #admin-panel .main { max-width: none; padding-left: 80px; padding-right: 80px; }
+
+  @media (max-width: 900px) {
+    #admin-panel .main { padding-left: 24px; padding-right: 24px; }
+  }
 
   .admin-header-row {
     display: flex;
