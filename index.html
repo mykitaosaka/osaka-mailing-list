@@ -1011,6 +1011,13 @@
     </div>
 
     <div id="form-area" style="display:none;">
+      <div class="field" id="frame-summary-box" style="margin-bottom:2rem;">
+        <p class="optin-desc" id="lbl-frame-summary-label">Frames Purchased</p>
+        <div class="frame-tag-list" id="frame-summary-tags"></div>
+        <p class="optin-desc" id="lbl-frame-summary-empty" style="display:none;">No frames added yet.</p>
+        <button type="button" class="frame-skip-btn" id="lbl-frame-summary-edit" onclick="backToFrames()">Edit Frames</button>
+      </div>
+
       <div class="privacy-box no-scroll" id="warranty-info-box" style="margin-bottom:2.5rem;">
         <h4 id="lbl-warranty-info">Warranty Information</h4>
         <ul id="warranty-info-list">
@@ -1266,6 +1273,9 @@ const i18n = {
     lblFrameAdd: 'Add',
     lblFrameContinue: 'Continue',
     lblFrameSkip: 'Skip',
+    lblFrameSummaryLabel: 'Frames Purchased',
+    lblFrameSummaryEmpty: 'No frames added yet.',
+    lblFrameSummaryEdit: 'Edit Frames',
   },
   ja: {
     hdrSub: 'MYKITA JAPAN',
@@ -1308,6 +1318,9 @@ const i18n = {
     lblFrameAdd: '追加',
     lblFrameContinue: '次へ',
     lblFrameSkip: 'スキップ',
+    lblFrameSummaryLabel: 'ご購入フレーム',
+    lblFrameSummaryEmpty: 'フレームが未入力です。',
+    lblFrameSummaryEdit: 'フレームを編集',
   },
   zh: {
     hdrSub: 'MYKITA JAPAN',
@@ -1350,6 +1363,9 @@ const i18n = {
     lblFrameAdd: '添加',
     lblFrameContinue: '下一步',
     lblFrameSkip: '跳过',
+    lblFrameSummaryLabel: '购买的镜架',
+    lblFrameSummaryEmpty: '尚未添加镜架。',
+    lblFrameSummaryEdit: '编辑镜架',
   },
   ko: {
     hdrSub: 'MYKITA JAPAN',
@@ -1392,6 +1408,9 @@ const i18n = {
     lblFrameAdd: '추가',
     lblFrameContinue: '다음',
     lblFrameSkip: '건너뛰기',
+    lblFrameSummaryLabel: '구매한 프레임',
+    lblFrameSummaryEmpty: '아직 프레임이 입력되지 않았습니다.',
+    lblFrameSummaryEdit: '프레임 편집',
   }
 };
 
@@ -1435,6 +1454,9 @@ function setLang(lang) {
   document.getElementById('lbl-frame-add').textContent = t.lblFrameAdd;
   document.getElementById('lbl-frame-continue').textContent = t.lblFrameContinue;
   document.getElementById('lbl-frame-skip').textContent = t.lblFrameSkip;
+  document.getElementById('lbl-frame-summary-label').textContent = t.lblFrameSummaryLabel;
+  document.getElementById('lbl-frame-summary-empty').textContent = t.lblFrameSummaryEmpty;
+  document.getElementById('lbl-frame-summary-edit').textContent = t.lblFrameSummaryEdit;
 }
 
 function setLabelWithReq(id, text) {
@@ -1538,6 +1560,7 @@ function resetForm() {
     selectedFrames = [];
     document.getElementById('f-frame-input').value = '';
     renderFrameTags();
+    renderFrameSummary();
 
     document.getElementById('f-name').value = '';
     document.getElementById('f-country-input').value = '';
@@ -2179,11 +2202,26 @@ function removeFrame(index) {
   renderFrameTags();
 }
 
+function renderFrameSummary() {
+  const tags = document.getElementById('frame-summary-tags');
+  const empty = document.getElementById('lbl-frame-summary-empty');
+  tags.innerHTML = selectedFrames.map(f => `<span class="frame-tag">${escapeHtml(f)}</span>`).join('');
+  tags.style.display = selectedFrames.length ? '' : 'none';
+  empty.style.display = selectedFrames.length ? 'none' : '';
+}
+
+function backToFrames() {
+  document.getElementById('form-area').style.display = 'none';
+  document.getElementById('frame-area').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 function proceedFromFrames() {
   const input = document.getElementById('f-frame-input');
   if (input.value.trim()) {
     addFrame();
   }
+  renderFrameSummary();
   document.getElementById('frame-area').style.display = 'none';
   document.getElementById('form-area').style.display = 'block';
   window.scrollTo({ top: 0, behavior: 'smooth' });
