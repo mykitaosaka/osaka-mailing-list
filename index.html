@@ -1986,12 +1986,26 @@ function downloadCSV() {
 }
 
 // ── FOLLOW-UP MAIL COMPOSE ──
+function getVisitPhrase(timestamp) {
+  const visit = new Date(timestamp);
+  if (isNaN(visit.getTime())) {
+    return { en: 'yesterday', ja: '昨日' };
+  }
+  const visitDate = new Date(visit.getFullYear(), visit.getMonth(), visit.getDate());
+  const today = new Date();
+  const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const diffDays = Math.round((todayDate - visitDate) / 86400000);
+  return diffDays <= 1
+    ? { en: 'yesterday', ja: '昨日' }
+    : { en: 'the other day', ja: '先日' };
+}
+
 const MAIL_TEMPLATES = [
   {
     id: 'confirmation',
     label: 'Thank You / Registration Confirmation',
-    body: (r) => `Dear ${r.name} san,\n\nThank you very much for visiting our store yesterday.\n\nIt was a pleasure meeting you and talking with you.\n\nWe hope you will enjoy your new MYKITA glasses.\nShould you require any maintenance or adjustments, please feel free to visit our store at any time. We would be delighted to assist you.\n\nWe look forward to welcoming you again on your next visit to Japan.\n\n\nKind regards,\n\nMYKITA Osaka\nGoogle Map Link | https://share.google/mw7yBJWFXs3xLcj1Y`,
-    jaBody: (r) => `${r.name} 様\n\n昨日はご来店いただき、誠にありがとうございました。\n\nお会いしてお話しできましたこと、大変嬉しく思っております。\n\n新しいMYKITAのメガネをお楽しみいただけますと幸いです。\nメンテナンスや調整などが必要な際は、お気軽にいつでもご来店ください。喜んでお手伝いさせていただきます。\n\n次回日本にお越しの際も、お会いできることを楽しみにしております。\n\n\nどうぞよろしくお願いいたします。\n\nMYKITA Osaka\nGoogle Map Link | https://share.google/mw7yBJWFXs3xLcj1Y`
+    body: (r) => { const v = getVisitPhrase(r.timestamp); return `Dear ${r.name}-san,\n\nThank you very much for visiting our store ${v.en}.\n\nIt was a pleasure meeting you and talking with you.\n\nWe hope you will enjoy your new MYKITA glasses.\nShould you require any maintenance or adjustments, please feel free to visit our store at any time. We would be delighted to assist you.\n\nWe look forward to welcoming you again on your next visit to Japan.\n\n\nKind regards,\n\nMYKITA Osaka\nGoogle Map Link | https://share.google/mw7yBJWFXs3xLcj1Y`; },
+    jaBody: (r) => { const v = getVisitPhrase(r.timestamp); return `${r.name} 様\n\n${v.ja}はご来店いただき、誠にありがとうございました。\n\nお会いしてお話しできましたこと、大変嬉しく思っております。\n\n新しいMYKITAのメガネをお楽しみいただけますと幸いです。\nメンテナンスや調整などが必要な際は、お気軽にいつでもご来店ください。喜んでお手伝いさせていただきます。\n\n次回日本にお越しの際も、お会いできることを楽しみにしております。\n\n\nどうぞよろしくお願いいたします。\n\nMYKITA Osaka\nGoogle Map Link | https://share.google/mw7yBJWFXs3xLcj1Y`; }
   },
   {
     id: 'confirmation_note',
@@ -1999,11 +2013,13 @@ const MAIL_TEMPLATES = [
     body: (r) => {
       const isAscii = /^[\x00-\x7F]*$/.test(r.note || '');
       const talk = r.aiTopicEn || (r.note && isAscii ? `talking with you about ${r.note}` : 'talking with you');
-      return `Dear ${r.name} san,\n\nThank you very much for visiting our store yesterday.\n\nIt was a pleasure meeting you and ${talk}.\n\nWe hope you will enjoy your new MYKITA glasses.\nShould you require any maintenance or adjustments, please feel free to visit our store at any time. We would be delighted to assist you.\n\nWe look forward to welcoming you again on your next visit to Japan.\n\n\nKind regards,\n\nMYKITA Osaka\nGoogle Map Link | https://share.google/mw7yBJWFXs3xLcj1Y`;
+      const v = getVisitPhrase(r.timestamp);
+      return `Dear ${r.name}-san,\n\nThank you very much for visiting our store ${v.en}.\n\nIt was a pleasure meeting you and ${talk}.\n\nWe hope you will enjoy your new MYKITA glasses.\nShould you require any maintenance or adjustments, please feel free to visit our store at any time. We would be delighted to assist you.\n\nWe look forward to welcoming you again on your next visit to Japan.\n\n\nKind regards,\n\nMYKITA Osaka\nGoogle Map Link | https://share.google/mw7yBJWFXs3xLcj1Y`;
     },
     jaBody: (r) => {
       const talk = r.aiTopicJa || (r.note ? `「${r.note}」についてお話しできましたこと` : 'お会いしてお話しできましたこと');
-      return `${r.name} 様\n\n昨日はご来店いただき、誠にありがとうございました。\n\n${talk}、大変嬉しく思っております。\n\n新しいMYKITAのメガネをお楽しみいただけますと幸いです。\nメンテナンスや調整などが必要な際は、お気軽にいつでもご来店ください。喜んでお手伝いさせていただきます。\n\n次回日本にお越しの際も、お会いできることを楽しみにしております。\n\n\nどうぞよろしくお願いいたします。\n\nMYKITA Osaka\nGoogle Map Link | https://share.google/mw7yBJWFXs3xLcj1Y`;
+      const v = getVisitPhrase(r.timestamp);
+      return `${r.name} 様\n\n${v.ja}はご来店いただき、誠にありがとうございました。\n\n${talk}、大変嬉しく思っております。\n\n新しいMYKITAのメガネをお楽しみいただけますと幸いです。\nメンテナンスや調整などが必要な際は、お気軽にいつでもご来店ください。喜んでお手伝いさせていただきます。\n\n次回日本にお越しの際も、お会いできることを楽しみにしております。\n\n\nどうぞよろしくお願いいたします。\n\nMYKITA Osaka\nGoogle Map Link | https://share.google/mw7yBJWFXs3xLcj1Y`;
     }
   },
   {
