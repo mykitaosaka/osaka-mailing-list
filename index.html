@@ -2160,6 +2160,10 @@ function removeFrame(index) {
 }
 
 function proceedFromFrames() {
+  const input = document.getElementById('f-frame-input');
+  if (input.value.trim()) {
+    addFrame();
+  }
   document.getElementById('frame-area').style.display = 'none';
   document.getElementById('form-area').style.display = 'block';
   window.scrollTo({ top: 0, behavior: 'smooth' });
