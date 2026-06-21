@@ -342,6 +342,62 @@
     display: none;
   }
 
+  /* ── FRAME ENTRY ── */
+  .frame-add-row { display: flex; gap: 8px; align-items: flex-start; }
+  .frame-add-row .ac-wrap { flex: 1; }
+  .frame-add-btn {
+    height: 44px;
+    padding: 0 18px;
+    border: 0.5px solid var(--black);
+    background: var(--black);
+    color: var(--bg);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .frame-add-btn:hover { background: #333; }
+  .frame-tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .frame-tag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border: 0.5px solid var(--border);
+    background: var(--bg2);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--black);
+  }
+  .frame-tag-remove {
+    cursor: pointer;
+    color: var(--mid);
+    font-size: 13px;
+    line-height: 1;
+  }
+  .frame-tag-remove:hover { color: var(--red); }
+  .frame-skip-btn {
+    width: 100%;
+    height: 44px;
+    margin-top: 10px;
+    border: 0.5px solid var(--border);
+    background: transparent;
+    color: var(--mid);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .frame-skip-btn:hover { background: var(--bg2); }
+
   /* checkboxes */
   .check-row {
     display: flex;
@@ -931,7 +987,26 @@
   </div>
 
   <div class="main">
-    <div id="form-area">
+    <div id="frame-area">
+      <p class="section-label" id="lbl-frame-title">Frames Purchased</p>
+      <p class="optin-desc" id="lbl-frame-desc">Please enter the name(s) of the frame(s) you purchased today.</p>
+
+      <div class="field">
+        <div class="frame-add-row">
+          <div class="ac-wrap" id="frame-wrap">
+            <input type="text" class="ac-input" id="f-frame-input" autocomplete="off" placeholder="Type frame name...">
+            <div class="ac-dropdown" id="frame-dropdown"></div>
+          </div>
+          <button type="button" class="frame-add-btn" id="lbl-frame-add" onclick="addFrame()">Add</button>
+        </div>
+        <div class="frame-tag-list" id="frame-tag-list"></div>
+      </div>
+
+      <button class="submit-btn" id="lbl-frame-continue" onclick="proceedFromFrames()">Continue</button>
+      <button class="frame-skip-btn" id="lbl-frame-skip" onclick="skipFrames()">Skip</button>
+    </div>
+
+    <div id="form-area" style="display:none;">
       <div class="privacy-box no-scroll" id="warranty-info-box" style="margin-bottom:2.5rem;">
         <h4 id="lbl-warranty-info">Warranty Information</h4>
         <ul id="warranty-info-list">
@@ -1078,6 +1153,7 @@
             <th>Email</th>
             <th>Opt-in</th>
             <th>Follow-up</th>
+            <th>Frames</th>
             <th>Notes</th>
             <th>Lang</th>
             <th></th>
@@ -1180,6 +1256,12 @@ const i18n = {
     thanksBody: 'Thank you for registering your MYKITA frame.\nYour warranty has been recorded successfully.\n\nPlease visit us in-store if you have any questions.',
     lblDone: 'Done',
     namePlaceholder: 'Your full name',
+    lblFrameTitle: 'Frames Purchased',
+    lblFrameDesc: 'Please enter the name(s) of the frame(s) you purchased today.',
+    framePlaceholder: 'Type frame name...',
+    lblFrameAdd: 'Add',
+    lblFrameContinue: 'Continue',
+    lblFrameSkip: 'Skip',
   },
   ja: {
     hdrSub: 'MYKITA JAPAN',
@@ -1216,6 +1298,12 @@ const i18n = {
     thanksBody: 'MYKITAフレームの登録ありがとうございます。\n保証登録が完了しました。\n\nご不明な点は店頭スタッフまでお気軽にお申し付けください。',
     lblDone: '完了',
     namePlaceholder: 'お名前',
+    lblFrameTitle: 'ご購入フレーム',
+    lblFrameDesc: '本日ご購入いただいたフレームの名前を入力してください。',
+    framePlaceholder: 'フレーム名を入力...',
+    lblFrameAdd: '追加',
+    lblFrameContinue: '次へ',
+    lblFrameSkip: 'スキップ',
   },
   zh: {
     hdrSub: 'MYKITA JAPAN',
@@ -1252,6 +1340,12 @@ const i18n = {
     thanksBody: '感谢您登记MYKITA镜架保修。\n登记已成功保存。\n\n如有任何疑问，欢迎到店咨询。',
     lblDone: '完成',
     namePlaceholder: '您的姓名',
+    lblFrameTitle: '购买的镜架',
+    lblFrameDesc: '请输入您今天购买的镜架名称。',
+    framePlaceholder: '输入镜架名称...',
+    lblFrameAdd: '添加',
+    lblFrameContinue: '下一步',
+    lblFrameSkip: '跳过',
   },
   ko: {
     hdrSub: 'MYKITA JAPAN',
@@ -1288,6 +1382,12 @@ const i18n = {
     thanksBody: 'MYKITA 프레임을 등록해 주셔서 감사합니다.\n보증 등록이 정상적으로 저장되었습니다.\n\n문의 사항이 있으시면 매장으로 편하게 연락해 주세요.',
     lblDone: '완료',
     namePlaceholder: '이름을 입력해 주세요',
+    lblFrameTitle: '구매한 프레임',
+    lblFrameDesc: '오늘 구매하신 프레임의 이름을 입력해 주세요.',
+    framePlaceholder: '프레임 이름 입력...',
+    lblFrameAdd: '추가',
+    lblFrameContinue: '다음',
+    lblFrameSkip: '건너뛰기',
   }
 };
 
@@ -1325,6 +1425,12 @@ function setLang(lang) {
   document.getElementById('e-email').textContent = t.eEmail;
   document.getElementById('e-optin').textContent = t.eOptin;
   document.getElementById('e-agree').textContent = t.eAgree;
+  document.getElementById('lbl-frame-title').textContent = t.lblFrameTitle;
+  document.getElementById('lbl-frame-desc').textContent = t.lblFrameDesc;
+  document.getElementById('f-frame-input').placeholder = t.framePlaceholder;
+  document.getElementById('lbl-frame-add').textContent = t.lblFrameAdd;
+  document.getElementById('lbl-frame-continue').textContent = t.lblFrameContinue;
+  document.getElementById('lbl-frame-skip').textContent = t.lblFrameSkip;
 }
 
 function setLabelWithReq(id, text) {
@@ -1393,7 +1499,8 @@ function handleSubmit() {
     country: country.value,
     countryCode: countryCode,
     lang: currentLang,
-    memberNo: ''
+    memberNo: '',
+    frames: selectedFrames.join(', ')
   };
 
   sendToSheet(record);
@@ -1412,7 +1519,7 @@ function handleSubmit() {
 
 function resetForm() {
   const ta = document.getElementById('thanks-area');
-  const fa = document.getElementById('form-area');
+  const fa = document.getElementById('frame-area');
   const FADE_MS = 450;
 
   ta.style.transition = `opacity ${FADE_MS}ms ease`;
@@ -1422,6 +1529,11 @@ function resetForm() {
     ta.style.display = 'none';
     ta.style.transition = '';
     ta.style.opacity = '';
+
+    document.getElementById('form-area').style.display = 'none';
+    selectedFrames = [];
+    document.getElementById('f-frame-input').value = '';
+    renderFrameTags();
 
     document.getElementById('f-name').value = '';
     document.getElementById('f-country-input').value = '';
@@ -1741,6 +1853,7 @@ function renderAdminTable() {
       <td><span class="email-link" style="color:#185FA5;" onclick="showEmailActions(event, ${r.row})">${escapeHtml(r.email)}</span></td>
       <td><span class="${r.optin === 'Yes' ? 'badge-yes' : 'badge-no'}">${escapeHtml(r.optin)}</span></td>
       <td>${renderFollowupBadge(r)}</td>
+      <td style="font-size:10px; color:var(--mid);">${escapeHtml(r.frames || '')}</td>
       <td><input type="text" class="note-input" value="${escapeHtml(r.note || '')}" placeholder="&mdash;" data-row="${r.row}" onblur="saveNote(this)" onkeydown="if(event.key==='Enter') this.blur();"></td>
       <td style="text-transform:uppercase; font-size:10px; color:var(--mid);">${escapeHtml(r.lang)}</td>
       <td><button class="row-delete-btn" onclick="deleteRecord(${r.row})" title="Delete this record" aria-label="Delete this record">&times;</button></td>
@@ -1845,7 +1958,7 @@ function downloadCSV() {
 
   if (records.length === 0) { alert('No records to export.'); return; }
 
-  const header = ['No.', 'Timestamp', 'Name', 'Country', 'Email', 'Email Opt-in', 'Language', 'Notes'];
+  const header = ['No.', 'Timestamp', 'Name', 'Country', 'Email', 'Email Opt-in', 'Language', 'Frames', 'Notes'];
   const rows = records.map((r, i) => [
     i + 1,
     r.timestamp,
@@ -1854,6 +1967,7 @@ function downloadCSV() {
     r.email,
     r.optin,
     String(r.lang).toUpperCase(),
+    `"${String(r.frames || '').replace(/"/g, '""')}"`,
     `"${String(r.note || '').replace(/"/g, '""')}"`
   ]);
 
@@ -2014,6 +2128,124 @@ const COUNTRY_CODES = {
   'United Arab Emirates':'ARE','United Kingdom':'GBR','United States':'USA','Uruguay':'URY','Uzbekistan':'UZB',
   'Venezuela':'VEN','Vietnam':'VNM'
 };
+
+
+// ── FRAME NAME AUTOCOMPLETE ──
+const FRAME_NAMES = ["EKON", "CL40347U", "LW40182U", "LW50107I", "LAMIN", "BELLIS__CUSTOMIZED", "COLEMAN_CUSTOMIZED", "BERTHOLD", "ELLUM", "BELLIS", "HOPPER", "LETO", "SOTO", "HEATH", "KAMI_A", "KAMI", "AYAN", "FARAH", "ATINE", "LAIS", "SANG", "JADA", "NEALE", "OCEANE", "ELBERT", "OLYMPE", "TALINI", "SESI", "JULLA", "NUKKA", "TAIFA", "MONDO", "EERO", "NIKEN", "IMBA", "EMMI", "PEN", "ISLA", "LUCIA", "ALBA", "ARMSTRONG", "YOTAM", "CARSON", "GERHARD", "SKYLAR", "CL40332F", "CL40335F", "OLLI", "MAREN", "SONU", "MR006", "MR001", "MR002", "MR003", "LANA", "MR005", "CL40346U", "LW40187U", "CL50168I", "CL40330U", "CL50178I", "LW40147F", "LW40186I", "CL50115I", "CL50177I", "LW50111F", "LW50110F", "LW50100U", "LW40183F", "LW40184U", "LW50099F", "TOMI_CUSTOMIZED", "KAYO_CUSTOMIZED", "LW50106I", "YUCCA", "DRIFT", "PIO", "BIJAN", "ARVIN", "RENO", "NOOMI", "LAVAND", "KABAL", "LILIA", "ML19", "JANO", "CLOVER", "BLUE", "STUDIO12.1", "BRAN", "NURIA", "DORSA", "SELBY", "ROSCOE", "ARVEL", "CHRISTA", "MARAL", "SENTA", "PORTIA", "HARRISON", "FORT", "DORIAN", "RIBO", "MAHSA", "KIANA", "TOSCA", "SANTO", "REMBERT", "LOMAX", "AITA", "DELANCEY", "NEVILLE", "YUKON", "CL40326U", "HELICON", "NIKEN_CUSTOMIZED", "WATARU_CUSTOMIZED", "YURA", "GRUNT", "RAT", "SAGA", "ZEISS Duravision  Gold", "TRUMAN_CUSTOMIZED", "STUDIO7.4_CUSTOMIZED", "KAMI_CUSTOMIZED", "CL40248I", "CL40194U", "CL40235U", "LW50038U", "LW40162U", "LW50105I", "LW50108F", "LW40101I", "LW40129U", "LW40147I", "LW40158F", "LW40174I", "LW40175U", "LW40177I", "WIM", "JULES", "CHIP", "ML18", "STUDIO15.2", "STUDIO15.1", "PANA", "NANOOK", "TUKTU", "KEOMA", "DESTA", "TRULES", "YOLA", "PAULSON", "KAIMAR", "RHYS", "HAMISH", "REVA", "LAVEN", "INDIRA", "BEAM", "ASPEN", "TEVEL", "RAIDER", "HAWI", "NANNA", "MOSHA", "JASMI", "GYLFI", "AHTI", "MIO", "XANDER", "THEODORE", "GARTH", "KIMBER", "NYARA", "KAIS", "KIVA", "SOMA", "SERUM", "TELMA", "ASGER", "LOVA", "RAIM_CUSTOMIZED", "PAL", "CL40308U", "LW40114F", "LW40158I", "LW40163F", "SATU", "KARSTEN__CUSTOMIZED", "CL50159l", "CL50131F", "JOJO", "DAVU", "CL50115l", "CL40232I", "LW50042l", "CL40216U", "CL40287U", "JULIAN", "STANLEY", "DESNA", "LAHTI", "CL50128I", "CL50137I", "CL40253F", "CL40322U", "CL40317U", "CL40314I", "CL40282U", "LW50042I", "LW50087U", "HOLM", "DELANO", "WALLY", "TUFF", "KAL", "NIAM", "MABEL", "SOLEA", "EILISH", "SINCLAIR", "XANDER_CUSTOMIZED", "LW40145I", "LW40154U", "SIWA_PLUS", "FLEMMING", "FIR", "PHIL", "LORENZO", "HENNING", "CORMAC", "ROSEMARY", "ROCKWELL", "CLIVE", "BUD", "ALLEN", "NAAMA", "BADU", "AMOS", "ML16", "BEAR", "SAWYER", "ML17", "ML05", "ANDERS", "LW40127F", "LW40110U", "CL50142F", "CL50139F", "CL50138I", "CL50127F", "CL50126F", "CL50120I", "CL50118I", "CL50110U", "CL50103I", "CL50098I", "CL50086I", "CL40286I", "CL40286F", "CL40276U", "CL40268U", "ML04", "CL40267U", "CL40249U", "CL40233I", "CL40198F", "CL40197U", "CL40193I", "HOLMES", "BERGE", "LW40157U", "LW40153F", "LW40145F", "LW40127I", "LW4017F", "ZEISS PROGRESSIVE LIGHT SUPERB 1.74", "ZEISS PROGRESSIVE LIGHT SUPERB 1.67", "ZEISS PROGRESSIVE LIGHT SUPERB 1.60", "ZEISS MyoKids1.67  INDIVIDUAL", "ZEISS MyoKids1.67  Pro", "ZEISS MyoKids1.60 INDIVIDUAL", "ZEISS MyoKids1.60 Pro", "ZEISS MyoKids1.50  INDIVISUAL", "ZEISS MyoKids1.50 Pro", "ZEISS Energize Me 1.74", "ZEISS Energize Me 1.67", "ZEISS Energize Me 1.60", "ML09", "NEETU_CUSTOMIZED", "MR004", "PERRY", "ALIN", "EMBERS", "ROWAN", "CAT", "LOOMIS", "TESHI", "TOTO", "MARELLE", "MEL", "BIRCH", "MAUREEN", "SOLENE", "AMARE", "SANTERI", "SIERRA", "MAVON", "WALKER", "SAUL", "LAIMI", "INCHEON", "DAKAR", "ML15", "ML13", "SAMAR", "SAGA_A", "LEON", "DADA", "KELSEY", "JUSTUS", "DELFINA", "COLTON", "BORGA", "ML11", "ARTURO", "TIWA", "KENJA", "JEPPE", "HILLA", "TAAVI", "MATIS", "SAIMA_A", "HAWKING", "1 OF 0 SBP03 CHARCOAL", "1 OF 0 SBP02 GOLDEN OLIVE", "1 OF 0 SBP01 MATTE MAPLE LEAF", "TEEMA", "ML10", "DALUR", "DIA_CUSTOMIZED", "BELLIS_CUSTOMIZED", "DUSK_CUSTOMIZED", "TARO_CUSTOMIZED", "NIMA", "LOME", "UNA", "PAVI", "LEELAND", "GIA", "AVERY", "ALISTER", "LAURI", "ISE", "HALVAR", "EDISON", "CILIAN", "JANAN", "SUVI", "SELVA", "SALVADOR", "REEVES", "GETZ", "GARLAND", "CAVEN", "CANTARA", "PEARL", "VAASA", "JARA_CUSTOMIZED", "WATERS", "JOJO_A", "COLEMAN", "SOLO", "KNUT", "ALPINE", "ML03", "ARMIN", "ALCOR", "TULOK", "ALYA", "Flower bouquet", "LAMIN_M", "ELBA", "STUDIO14.2", "STUDIO13.1", "JELVA", "Glue repair for No.2 | 4part", "Glue repair for No.2 | 3part", "Glue repair for No.2 | 2part", "Glue repair for No.2 | 1part", "ELVE", "KILENDA", "MOJAVE", "JEFFERSON", "MARTIN", "CYPRESS", "Connector | Repair", "STUDIO14.1", "ELI", "HOLLIS", "KNOX", "DAVU_A", "TIWA_A", "Nose pad | Purchase at MYKITA Shop", "KIENE", "MERVI", "ARVO", "STEEN", "IDRIS", "HOWLIN", "BEACH", "WILL", "PARIS", "STUDIO7.5", "KYLAN", "ARIELLE", "JARI", "MONROE", "VANILLA", "SURI", "032c SILK SCARF", "032c LEATHER TRAY", "032c KEY FOB", "FERLO", "HELMI", "SATIN", "SANTANA", "NORFOLK", "TOBI", "Frame Polishing", "NUKKA_A", "SINDAL", "MARFA", "MOTT", "STUDIO6.8", "KENTON", "JALO", "ALDER", "ML05_DEMO LENSES", "LAVRA", "VIOLA", "RUE", "BADU_PLUS", "NIAM_PLUS", "CAVEN_PLUS", "NEVEN", "SAIMA", "ALICIA", "RIKU", "KOLDING", "LAHTI_A", "ML03_DEMO LENSES", "ML13_ DEMO LENSES", "ML04_ DEMO LENSES", "LERATO", "LAGON", "MEJA", "SESI_A", "DIA", "ELISA", "FINVID_CUSTOMIZED", "AKI_CUSTOMIZED", "ALESSIA", "VELMA", "SPRUCE", "LENNON", "MISAKO", "JARA", "CANNA", "ARLO", "SOUDA", "BUENO", "HANNO", "NOR", "TATE", "ML13_DEMO LENSES", "ML08", "ALCOTT", "VISKA", "VEN", "LALE", "SILVER", "BADU_PULS", "ALFONSO", "SERAPHINA", "NEELA", "DUSK", "DON", "ML04_DEMO LENSES", "KELLY", "NAT", "KENDALL", "LAVRA_A", "DAYO_PLUS", "MERI", "ANANA_A", "SAMU", "BORGA_A", "MOMO", "KAITO", "PEGGY", "IRIS", "FELICIA", "MINTTU", "STUDIO12.2", "NALA", "MARLOWE", "MAHA", "NEW", "KALLA", "EETU", "JES", "AMKA_A", "KISKA", "WALT", "STUDIO12.5", "DEW", "KAYO", "RYKER", "KAORI_CUSTOMIZED", "KEOMA_A", "EKON_A", "LAYANA", "MISTY", "MIKKEL", "HYDRA", "KENDO", "EITO_CUSTOMIZED", "JONAH", "JAZ", "MYKITA glasses case", "HOLM_A", "PHILLYS", "RAYMOND", "SCHORSCH", "ANIK_A", "BERNIE", "ANTTI_CUSTOMIZED", "NAOKO_CUSTOMIZED", "HITI_A", "HIMIKO", "ANGUS", "CLARENCE", "KETILL", "ACHILLES", "STINE", "STUDIO13.2", "FREDA_A", "MAJVI", "Glass Coating", "GIBA", "JOLAN", "STUDIO5.4", "STUDIO5.3", "HILDEGARD", "SOEREN", "THOMAS", "ML02_ DEMO LENSES", "ML05_ DEMO LENSES", "AIDEN", "LUPITA", "ML12", "ROLLINS", "HOYA Flat Lenses 1.50", "HOYA Flat Lenses 1.50 Plain", "MYKITA glasses cleaning cloth L", "NESTOR", "KIRIMA", "TATA", "MEGHAN", "JORGOS", "OLSEN_CUSTOMIZED", "MYKITA glasses cleaning cloth S", "DENNIS", "TUVA", "BIKKI_A", "GRIMBART", "BOLDEWYN", "BELLYN", "SIWA", "DAYO", "TALINI_A", "EDE", "FARGO", "CORINNA", "CEDAR", "SIRU", "ANTTI", "SHO", "HEGON_A", "LEVANTE", "AURI", "PALOMA", "TALVI", "MYKITA Tote bag", "Gift wrapping fee", "KOLMAR", "HEMLOCK", "CHARLOTTE", "SATORI", "YASKA", "KETILL_A", "NIS", "BRENDA", "STUDIO7.1", "RILEY", "ML14", "SILIA", "VERUSCHKA", "LEWIS", "EITO", "CLAAS_CUSTOMIZED", "CALLUM", "ZEISS color lens", "TOMI", "HIRO", "YUUTO", "JONTE", "GERO", "Maintenance fee", "ESBO", "LUMI", "ML07", "HULDA", "ANNIKA", "TORBEN", "BRODY", "MAXIMILIAN", "WAVE", "ALMETA", "ERRKI", "MATTI", "MERRICK", "MMTRANSFER004", "MMCRAFT005", "MMCRAFT002", "MMESSE019", "TANNER", "BASIL", "MMTRANSFER003", "AKEMI", "ELLINGTON", "ML01", "MMCRAFT016", "STUDIO2.2", "STUDIO6.7", "MMESSE020", "WATARU", "TRUMAN", "KEELUT_A", "KARI", "MMRAW007", "ZEISS PROGRESSIVE SMART LIFE SUPERB1.74", "ZEISS PROGRESSIVE SMART LIFE SUPERB1.67", "ZEISS PROGRESSIVE SMART LIFE SUPERB1.60", "ZEISS PROGRESSIVE SMART LIFE PLUS1.74", "ZEISS PROGRESSIVE SMART LIFE PLUS1.67", "ZEISS PROGRESSIVE SMART LIFE PLUS1.60", "ZEISS PROGRESSIVE SMART LIFE PURE1.74", "ZEISS PROGRESSIVE SMART LIFE PURE1.67", "ZEISS PROGRESSIVE SMART LIFE PURE1.60", "MMRAW013", "KEELUT", "COCO", "MMRAW021", "BUSTER", "MMTRANSFER001", "MMESSE001", "MMESSE013", "DEAN", "STUDIO4.3", "HOLLY", "SANNA", "JESPER", "MMRAW018", "AKI", "MMCRAFT007", "HANSEN", "MMRAW011", "HELGI", "HALDUR_A", "TOMOMI", "GISELLE", "MMCRAFT001", "MMRAW020", "Anti Virus Platinum Coating", "ZEISS Blue Guard", "ZEISS Anti FOG Kit", "LARSSON", "MMCRAFT006", "ML02", "DAISUKE", "MMRAW002", "HESTA_A", "MINAKO", "RIN", "NOBU", "ULLA", "VANESSA", "STUDIO6.6", "MMECHO005", "MMESSE029", "MMESSE028", "MMCRAFT014", "LISKA", "BLU", "MMCRAFT013", "MMESSE002", "HEGON_EU", "JIRO", "MMCRAFT010", "KAUKO", "HL002", "HL001", "STUDIO6.4", "STUDIO6.2", "JUJUBI_A", "BILIMBI_A", "BJELLE", "MMCRAFT011", "MMESSE026", "NIBA_A", "CLAUDE", "DD2.3", "RAOUL", "NAOKO", "GIGI SHADES", "ALUKI", "JANIS", "KARSTEN", "STUDIO7.2", "ALIO_A_S", "MMESSE021", "OLGA", "ADRIANO", "AKSEL", "DAGNY", "TOMKIN_A", "GIORGIO", "TOMKIN Shades", "MMESSE027", "MMRAW017", "HOPS", "LOUIS", "TUKTU_A", "KAZU", "MADELEINE", "MASAO", "BAMBI", "BRADFIELD", "SOLOMON", "MMRAW014", "HEIKO", "PIT", "GUNNAR", "ROCKET", "ISMO", "PHILOMENE", "QUENBY", "KJELL", "STUDIO11.1", "GAPI", "OTTI", "BRANDUR_A", "YOKO", "DD2.2", "BELLA", "KIKI", "REM", "STUDIO6.3", "ALICE", "VABO", "FEDOR", "MMVIRTUAL001", "NEA", "ALEXANDER", "NIVES", "THUNDER", "MMRAW005", "HAY", "DREW", "WALSH", "KASIMIR", "GREGORY", "URSULA", "GISELLE_S", "ALESSIA_S", "KASIMIR_S", "VITO_S", "LENNARD_S", "LOVISA", "ARLUK_A", "LENNARD", "NITA", "VITO", "CLAAS", "HIROTO", "TAUNO", "KAI", "ESKID", "MMESSE008", "JAIS", "SCARLETT_S", "SEPP_S", "BELLYN_S", "TONA", "OVE", "HILLA_A", "MAVERICK", "MMRAW008", "ANNABETH_S", "KENDRICK_S", "KYO_S", "STUDIO9.1", "STUDIO9.2", "MMESSE016", "LILLESOL", "SYLVESTER", "FEDERICO", "LOTUS", "CAYENNE", "KEELUT Shades", "REED", "KARMA", "JULLA_A", "HOUSTON", "NATHAN", "FERN", "STUDIO7.4", "JUDE", "ROB", "TOCLO_A", "DAGGOO", "JULIUS", "MMESSE006", "STUDIO6.5", "LUAVA_A", "NUKKA Shades", "MMRAW012", "PALM", "PRISCILLA", "JOVI", "MMRAW010", "MMRAW009", "MMCRAFT004", "GINA", "CARA", "JORDI", "APPLE", "ADEBAR", "GESA", "LEMAS", "MMESSE009", "RYO", "TRIBE", "CASH", "BOOST", "HARU", "MMCRAFT012", "MMRAW016", "MMRAW015", "MMESSE025", "MMESSE024", "STUDIO10.2", "STUDIO10.1", "ZEISS DIGITAL SMART LIFE INDIVIDUAL1.74", "ZEISS DIGITAL SMART LIFE INDIVIDUAL1.67", "ZEISS DIGITAL SMART LIFE INDIVIDUAL1.60", "ZEISS DIGITAL SMART LIFE1.74", "ZEISS DIGITAL SMART LIFE1.67", "ZEISS DIGITAL SMART LIFE1.60", "ZEISS PROGRESSIVE SMART LIFE INDIVIDUAL1.74", "ZEISS PROGRESSIVE SMART LIFE INDIVIDUAL1.67", "ZEISS PROGRESSIVE SMART LIFE INDIVIDUAL1.60", "ZEISS SMART LIFE INDIVIDUAL1.74", "ZEISS SMART LIFE INDIVIDUAL1.67", "ZEISS SV  SMART LIFE INDIVIDUAL1.60", "ZEISS SMART LIFE1.74", "ZEISS SV SMART LIFE1.67", "ZEISS SV SMART LIFE1.60", "DALIA", "SELLECK", "CARLO", "GUNDA", "ELGARD", "COLTRANE", "CHARLENE", "MERYL", "LONNE", "JUL", "ERI", "BEULAH", "IVER", "FINNA", "ZACH_S", "JIM_S", "DASH_S", "PHILOMENE_S", "SCHORSCH_S", "AGNES_S", "ZEISS DRIVE SAFE INDIVIDUAL1.74", "ZEISS DRIVE SAFE INDIVIDUAL1.67", "ZEISS DRIVE SAFE INDIVIDUAL1.60", "Parts", "Nose pad | Purchased at another store", "Repair cost", "ZEISS i.scription", "ZEISS PROGRESSIVE DRIVE SAFE SUPERB1.74", "ZEISS PROGRESSIVE DRIVE SAFE SUPERB1.67", "ZEISS PROGRESSIVE DRIVE SAFE SUPERB1.60", "COLOR SAMPLE", "COLOR ARRIATE", "MIRRORCOAT", "HOYA SFT ICE", "HOYA NL1.74", "HOYA NL1.67", "HOYA NL1.6", "HOYA HL1.6", "HOYA PHOENIX1.53 AS", "HOYA PHOENIX1.53 SP", "ZEISS MYKITA RAW LENSES", "ZEISS DIGITAL INDIVIDUAL1.74", "ZEISS DIGITAL INDIVIDUAL1.67", "ZEISS DIGITAL INDIVIDUAL1.60", "SHIFT", "JONES", "RICCARDO", "LANDON", "CORALIE", "DEMO LENSES", "SOS", "TRITON", "HERKO", "STUDIO8.2", "STUDIO8.1", "STUDIO7.3", "STUDIO6.1", "STUDIO5.5", "STUDIO2.3", "STUDIO2.1", "STUDIO1.4", "ZEISS DIGITAL1.74", "ZEISS DIGITAL1.67", "ZEISS DIGITAL1.60", "ZEISS OFFICE INDIVIDUAL1.74", "ZEISS OFFICE INDIVIDUAL1.67", "ZEISS OFFICE INDIVIDUAL1.6", "ZEISS OFFICE SUPERB1.74", "ZEISS OFFICE SUPERB1.67", "ZEISS OFFICE SUPERB1.6", "ZEISS OFFICE Plus1.74", "ZEISS OFFICE Plus1.67", "ZEISS OFFICE Plus1.6", "ZEISS PROGRESSIVE DRIVE SAFE INDIVIDUAL1.74", "ZEISS PROGRESSIVE DRIVE SAFE INDIVIDUAL1.67", "ZEISS PROGRESSIVE DRIVE SAFE INDIVIDUAL1.60", "ZEISS PROGRESSIVE DRIVE SAFE1.74", "ZEISS PROGRESSIVE DRIVE SAFE1.67", "ZEISS PROGRESSIVE DRIVE SAFE1.60", "ZEISS PROGRESSIVE LIGHT3Dve1.74", "ZEISS PROGRESSIVE LIGHT3Dve1.67", "ZEISS PROGRESSIVE LIGHT3Dve1.60", "ZEISS PROGRESSIVE LIGHT3Dv1.74", "ZEISS PROGRESSIVE LIGHT3Dv1.67", "ZEISS PROGRESSIVE LIGHT3Dv1.60", "ZEISS PROGRESSIVE LIGHT3D1.74", "ZEISS PROGRESSIVE LIGHT3D1.67", "ZEISS PROGRESSIVE LIGHT3D1.60", "ZEISS PROGRESSIVE INDIVIDUAL1.74", "ZEISS PROGRESSIVE INDIVIDUAL1.67", "ZEISS PROGRESSIVE INDIVIDUAL1.60", "ZEISS PROGRESSIVE SUPERB1.74", "ZEISS PROGRESSIVE SUPERB1.67", "ZEISS PROGRESSIVE SUPERB1.60", "ZEISS PROGRESSIVE PLUS1.74", "ZEISS PROGRESSIVE PLUS1.67", "ZEISS PROGRESSIVE PLUS1.60", "ZEISS PROGRESSIVE PURE1.74", "ZEISS PROGRESSIVE PURE1.67", "ZEISS PROGRESSIVE PURE1.60", "HIGHER CYL / PRISM", "POLARIZED / TRANSITIONS", "BLUE LIGHT CUT", "ZEISS PLAIN GLASSES", "ZEISS INDIVIDUAL1.74", "ZEISS INDIVIDUAL1.67", "ZEISS INDIVIDUAL1.60", "ZEISS DRIVE SAFE1.74", "ZEISS DRIVE SAFE1.67", "ZEISS DRIVE SAFE1.60", "ZEISS SUPERB1.74", "ZEISS SUPERB1.67", "ZEISS SUPERB1.60", "ZEISS FINISHED1.74", "ZEISS FINISHED1.67", "ZEISS FINISHED1.60 AS", "ZEISS FINISHED1.60 SP", "SOLA PLAIN GLASSES", "SOLA MIRADA", "SOLA RADIUS", "SOLA SIX AS", "SOLA SIX SP", "Shipping cost", "ARMIDA_S", "LOVELL", "MUSK", "GUARD ONE / PLUS", "GUARD ONE", "RIDGE", "BOOM", "MMCIRCLE002", "MMCIRCLE001", "CANYON", "PEAK", "BOND", "BLAZE", "BALTA", "MMECHO001", "RIDER", "OMEGA", "YOSHY", "POTI", "MARS", "CALLIOPE", "TITAN", "GAMMA", "MATO_A", "KALLIO_A", "ONIKI_A", "KENDA_A", "MMRAW019", "POK", "YUMA_A", "TORUK_A", "LAGON_A", "JOVVA_A", "ELVE_A", "LUAVA", "AILO", "FRANKLIN", "FABIAN", "CAPOTE", "OKI", "YUKA", "OLIVE_S", "MMDUAL003", "GILES", "SULLIVAN_S", "ELDRIDGE_S", "ANNABETH", "MMDUAL004", "MMDUAL004_S", "MMDUAL002", "MMDUAL001", "GRANT", "FABRICE", "SIENNA", "WARNER_S", "ARMIDA", "THOMPSON_S", "KAYO_DAIKI TSUNETA", "LENNARD_DAIKI TSUNETA", "OLSEN", "KAZUO", "NUKKA shades", "TALINI shades", "TOMKIN shades", "KEELUT shades", "LEX shades", "GIGI shades", "FABIAN shades", "ROMINA", "STUDIO12.3", "ML06", "MMESSE030", "FOCUS", "DEEP", "MMCRAFT017", "JENSEN", "SEIGO", "DONOVAN", "EMORY", "TOTAL", "SUPER", "FELIX", "RIKKE", "TARO", "YOSHI", "KAORI", "HL003", "NETA", "ZELDA", "BAKER", "PARK", "DUANE", "MMCRAFT015", "TILLA", "MAGDA", "DALTON", "DARCY", "STUART", "LIVA", "LOTTA", "GUNNARSON", "LORENS", "HAMPTON", "ASMUND", "IAN", "CALEB", "WILDER", "WESTON", "EASTON", "AL", "ZANE", "LOST", "CYNTHIA", "RYOKO", "YORIN", "INGELS", "YNGVE", "SOY", "JOEL", "BASIE", "VALDA", "TURNER", "PAULIN", "DURAN", "HAGEN", "RAFFAELLA", "LUND", "TAPIO", "SID", "MMESSE007", "MMESSE023", "MMESSE022", "MMCRAFT009", "MMCRAFT008", "PORTER", "JETTE", "FRANCESCO", "MANUEL", "MIRO", "MONOGRAM", "RAIDON", "BJAKE", "ANDERSSON", "MMCRAFT003", "SELINA", "KITT", "EARTHA E10", "YUMI", "KUMIKO", "TAKEO", "JUN", "MIZUHO", "NILSSON", "HELKA", "AGAVA", "MMESSE018", "MMESSE017", "ERLING", "JONI F69", "JONI F10", "METTE", "ARTO", "BIRK", "JARMO", "ANDO", "MALTE", "KENT", "DD2.2 A25", "VERBAL", "EARTHA E25", "WOODROW", "BEVERLY", "VERUCHKA", "MMESSE010", "VILDE", "MACY", "DUSTY F65", "EARTHA E65", "ISAAC", "DEMI", "SLOE", "TORGE", "AIRA", "CELESTE", "ENNIO", "BRENT", "ANYU", "ENRICO", "MMTRANS001", "MMTRANS003", "MMESSE011", "MMESSE005", "MMESSE012", "FINVID", "OWL", "DAVIS", "PERNILLA", "ESBJOERN", "WULF", "PEACH", "LUPINE", "FLAX", "VERUCHKA F10", "ADEBAR_S", "PETZ_S", "PETZ", "RANI", "JOSEPPA", "JUNIS", "ERIN", "VALTO", "EJVIND", "ELON", "ELDER", "CLOVE", "MMTRANS002", "DOUG", "CROSBY", "THELONIUS", "EDDA", "BENNY", "ELLERY", "SCHORSCH F65", "JORG", "RAGNAR", "TIMOTHY", "PEYTON", "DD2.2 A6", "DD2.2 A2", "JOOST", "FLIP", "ROOPE", "ZACH", "ERWIN F65", "MMESSE006_S", "MMESSE005_S", "MMESSE001_S", "GERRIT", "CARTER", "MADITA", "MMESSE003_S", "URSULA_S", "URSULA F61", "ERLAND", "LUELLA", "BUGSY", "ERWIN F61", "ERWIN F25", "ERWIN F10", "ERWIN F9", "PRISKA", "RASMUS", "PIA", "EINAR", "MAILA", "SLY", "NORA_S", "TARJE", "JOHN", "YUKI_S", "AKIRA_S", "MAREIKE", "JANIS F10", "FRANZ F9", "BECKY", "TAULANT", "BONNIE", "RAFAEL", "SMILLA", "XAVER F10", "FRANZ F25", "JORDAN", "BETTY", "NIGEL", "JESPER_S", "JANIS F9", "JAMES", "COOPER"];
+
+let selectedFrames = [];
+let frameHighlight = -1;
+
+function renderFrameTags() {
+  const list = document.getElementById('frame-tag-list');
+  list.innerHTML = selectedFrames.map((f, i) =>
+    `<span class="frame-tag">${escapeHtml(f)}<span class="frame-tag-remove" onclick="removeFrame(${i})">&times;</span></span>`
+  ).join('');
+}
+
+function addFrame() {
+  const input = document.getElementById('f-frame-input');
+  const val = input.value.trim();
+  if (!val) return;
+  selectedFrames.push(val);
+  renderFrameTags();
+  input.value = '';
+  closeFrameDropdown();
+  input.focus();
+}
+
+function removeFrame(index) {
+  selectedFrames.splice(index, 1);
+  renderFrameTags();
+}
+
+function proceedFromFrames() {
+  document.getElementById('frame-area').style.display = 'none';
+  document.getElementById('form-area').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function skipFrames() {
+  selectedFrames = [];
+  renderFrameTags();
+  proceedFromFrames();
+}
+
+function closeFrameDropdown() {
+  document.getElementById('frame-wrap').classList.remove('open');
+  frameHighlight = -1;
+}
+
+function initFrameAutocomplete() {
+  const wrap = document.getElementById('frame-wrap');
+  const input = document.getElementById('f-frame-input');
+  const dropdown = document.getElementById('frame-dropdown');
+
+  function renderList(query) {
+    const q = query.trim().toLowerCase();
+    const filtered = q
+      ? FRAME_NAMES.filter(f => f.toLowerCase().includes(q)).slice(0, 50)
+      : [];
+
+    frameHighlight = -1;
+
+    if (filtered.length === 0) {
+      closeFrameDropdown();
+      return;
+    }
+
+    dropdown.innerHTML = filtered.map(f => {
+      const idx = f.toLowerCase().indexOf(q);
+      const before = f.slice(0, idx);
+      const match = f.slice(idx, idx + q.length);
+      const after = f.slice(idx + q.length);
+      return `<div class="ac-item" data-value="${f}">${before}<mark>${match}</mark>${after}</div>`;
+    }).join('');
+
+    dropdown.querySelectorAll('.ac-item').forEach(item => {
+      item.addEventListener('mousedown', e => {
+        e.preventDefault();
+        input.value = item.dataset.value;
+        closeFrameDropdown();
+      });
+    });
+
+    wrap.classList.add('open');
+  }
+
+  input.addEventListener('input', () => { renderList(input.value); });
+  input.addEventListener('focus', () => { renderList(input.value); });
+
+  input.addEventListener('keydown', e => {
+    const items = dropdown.querySelectorAll('.ac-item');
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      frameHighlight = Math.min(frameHighlight + 1, items.length - 1);
+      items.forEach((it, i) => it.classList.toggle('highlighted', i === frameHighlight));
+      if (items[frameHighlight]) items[frameHighlight].scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      frameHighlight = Math.max(frameHighlight - 1, 0);
+      items.forEach((it, i) => it.classList.toggle('highlighted', i === frameHighlight));
+      if (items[frameHighlight]) items[frameHighlight].scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (frameHighlight >= 0 && items[frameHighlight]) {
+        input.value = items[frameHighlight].dataset.value;
+        closeFrameDropdown();
+      } else {
+        addFrame();
+      }
+    } else if (e.key === 'Escape') {
+      closeFrameDropdown();
+      input.blur();
+    }
+  });
+
+  document.addEventListener('click', e => {
+    if (!wrap.contains(e.target)) closeFrameDropdown();
+  });
+}
 
 let acHighlight = -1;
 
@@ -2279,6 +2511,7 @@ function initTextScale() {
 // ── INIT ──
 initAutocomplete();
 initEmailAutocomplete();
+initFrameAutocomplete();
 checkAdminMode();
 updateSubmitState();
 initTextScale();
