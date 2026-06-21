@@ -343,6 +343,25 @@
   }
 
   /* ── FRAME ENTRY ── */
+  .frame-summary-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mid);
+    padding: 12px 0;
+    border-top: 0.5px solid var(--border);
+  }
+  .frame-summary-chevron {
+    font-size: 10px;
+    transition: transform 0.2s ease;
+  }
+  .frame-summary-chevron.open { transform: rotate(90deg); }
+  #frame-summary-content { padding-top: 10px; }
   .frame-add-row { display: flex; gap: 8px; align-items: flex-start; }
   .frame-add-row .ac-wrap { flex: 1; }
   .frame-add-btn {
@@ -1011,13 +1030,6 @@
     </div>
 
     <div id="form-area" style="display:none;">
-      <div class="field" id="frame-summary-box" style="margin-bottom:2rem;">
-        <p class="optin-desc" id="lbl-frame-summary-label">Frames Purchased</p>
-        <div class="frame-tag-list" id="frame-summary-tags"></div>
-        <p class="optin-desc" id="lbl-frame-summary-empty" style="display:none;">No frames added yet.</p>
-        <button type="button" class="frame-skip-btn" id="lbl-frame-summary-edit" onclick="backToFrames()">Edit Frames</button>
-      </div>
-
       <div class="privacy-box no-scroll" id="warranty-info-box" style="margin-bottom:2.5rem;">
         <h4 id="lbl-warranty-info">Warranty Information</h4>
         <ul id="warranty-info-list">
@@ -1086,6 +1098,18 @@
       </div>
 
       <div class="err-msg" id="e-agree" style="margin-top:-10px; margin-bottom:12px;"></div>
+
+      <div class="field" id="frame-summary-box">
+        <div class="frame-summary-toggle" id="frame-summary-toggle" onclick="toggleFrameSummary()">
+          <span id="lbl-frame-summary-label">Frames Purchased</span>
+          <span class="frame-summary-chevron" id="frame-summary-chevron">&#9656;</span>
+        </div>
+        <div id="frame-summary-content" style="display:none;">
+          <div class="frame-tag-list" id="frame-summary-tags"></div>
+          <p class="optin-desc" id="lbl-frame-summary-empty" style="display:none;">No frames added yet.</p>
+          <button type="button" class="frame-skip-btn" id="lbl-frame-summary-edit" onclick="backToFrames()">Edit Frames</button>
+        </div>
+      </div>
 
       <button class="submit-btn" id="lbl-submit" onclick="handleSubmit()">Register Warranty</button>
     </div>
@@ -2208,6 +2232,16 @@ function renderFrameSummary() {
   tags.innerHTML = selectedFrames.map(f => `<span class="frame-tag">${escapeHtml(f)}</span>`).join('');
   tags.style.display = selectedFrames.length ? '' : 'none';
   empty.style.display = selectedFrames.length ? 'none' : '';
+  document.getElementById('frame-summary-content').style.display = 'none';
+  document.getElementById('frame-summary-chevron').classList.remove('open');
+}
+
+function toggleFrameSummary() {
+  const content = document.getElementById('frame-summary-content');
+  const chevron = document.getElementById('frame-summary-chevron');
+  const isOpen = content.style.display !== 'none';
+  content.style.display = isOpen ? 'none' : 'block';
+  chevron.classList.toggle('open', !isOpen);
 }
 
 function backToFrames() {
