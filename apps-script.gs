@@ -4,14 +4,14 @@
  * resulting /exec URL into SHEET_WEBHOOK_URL in index.html.
  *
  * Spreadsheet column order:
- * Timestamp | Name | Email | Opt-in | Country | Language | 会員番号 | Follow-up Sent
+ * Timestamp | Name | Email | Opt-in | Country | Language | 会員番号 | Follow-up Sent | Frame Names
  * (会員番号 is filled in manually in the sheet, so it is left blank here.)
  */
 function doPost(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = JSON.parse(e.postData.contents);
 
-  var headers = ['Timestamp', 'Name', 'Email', 'Opt-in', 'Country', 'Language', '会員番号', 'Follow-up Sent'];
+  var headers = ['Timestamp', 'Name', 'Email', 'Opt-in', 'Country', 'Language', '会員番号', 'Follow-up Sent', 'Frame Names'];
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(headers);
   }
@@ -29,7 +29,8 @@ function doPost(e) {
     country,
     (data.lang || '').toUpperCase(),
     data.memberNo || '',
-    'FALSE'
+    'FALSE',
+    data.frameNames || ''
   ]);
 
   return ContentService.createTextOutput(JSON.stringify({ result: 'success' }))
@@ -93,7 +94,7 @@ function readRecords(sheet) {
   var lastRow = sheet.getLastRow();
   if (lastRow < 2) { return []; }
 
-  var values = sheet.getRange(2, 1, lastRow - 1, 8).getValues();
+  var values = sheet.getRange(2, 1, lastRow - 1, 9).getValues();
   var records = [];
   for (var i = 0; i < values.length; i++) {
     var row = values[i];
@@ -106,7 +107,8 @@ function readRecords(sheet) {
       country: row[4] || '',
       lang: row[5] || '',
       memberNo: row[6] || '',
-      followupSent: String(row[7]).toUpperCase() === 'TRUE'
+      followupSent: String(row[7]).toUpperCase() === 'TRUE',
+      frameNames: row[8] || ''
     });
   }
   return records;

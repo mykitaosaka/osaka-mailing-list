@@ -323,6 +323,27 @@
     letter-spacing: 0.06em;
   }
 
+  /* ── FRAME ENTRY SCREEN ── */
+  #form-area { display: none; }
+  .frame-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .frame-row .ac-wrap { flex: 1; }
+  .frame-remove-btn {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    background: none;
+    border: 0.5px solid var(--border);
+    color: var(--light);
+    font-size: 16px;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .frame-remove-btn:hover { color: var(--red); border-color: var(--red); }
+
   .err-msg {
     font-size: 9px;
     color: var(--red);
@@ -855,6 +876,17 @@
   </div>
 
   <div class="main">
+    <div id="frame-entry-area">
+      <p class="section-label" id="lbl-frame-info">Purchased Frame(s)</p>
+      <p class="optin-desc" id="lbl-frame-desc" style="margin-bottom:1.5rem;">Please enter the name(s) of the MYKITA frame(s) you purchased. You may add multiple frames, or skip this step.</p>
+      <div id="frame-row-list"></div>
+      <button class="refresh-btn" type="button" onclick="addFrameRow()" id="lbl-frame-add" style="margin-bottom:2rem;">+ Add Frame</button>
+      <div style="display:flex; gap:10px;">
+        <button class="refresh-btn" style="flex:1; height:48px;" onclick="skipFrameEntry()" id="lbl-frame-skip">Skip</button>
+        <button class="submit-btn" style="flex:1; margin-top:0;" onclick="continueFrameEntry()" id="lbl-frame-continue">Continue</button>
+      </div>
+    </div>
+
     <div id="form-area">
       <div class="privacy-box no-scroll" id="warranty-info-box" style="margin-bottom:2.5rem;">
         <h4 id="lbl-warranty-info">Warranty Information</h4>
@@ -1001,6 +1033,7 @@
             <th>Email</th>
             <th>Opt-in</th>
             <th>Follow-up</th>
+            <th>Frames</th>
             <th>Lang</th>
             <th></th>
           </tr>
@@ -1092,6 +1125,12 @@ const i18n = {
     thanksBody: 'Thank you for registering your MYKITA frame.\nYour warranty has been recorded successfully.\n\nPlease visit us in-store if you have any questions.',
     lblDone: 'Done',
     namePlaceholder: 'Your full name',
+    lblFrameInfo: 'Purchased Frame(s)',
+    lblFrameDesc: 'Please enter the name(s) of the MYKITA frame(s) you purchased. You may add multiple frames, or skip this step.',
+    lblFrameAdd: '+ Add Frame',
+    lblFrameSkip: 'Skip',
+    lblFrameContinue: 'Continue',
+    framePlaceholder: 'Frame name',
   },
   ja: {
     hdrSub: 'MYKITA JAPAN',
@@ -1126,6 +1165,12 @@ const i18n = {
     thanksBody: 'MYKITAフレームの登録ありがとうございます。\n保証登録が完了しました。\n\nご不明な点は店頭スタッフまでお気軽にお申し付けください。',
     lblDone: '完了',
     namePlaceholder: 'お名前',
+    lblFrameInfo: 'ご購入フレーム',
+    lblFrameDesc: 'ご購入されたMYKITAフレームの名前を入力してください。複数点ある場合は追加できます。スキップも可能です。',
+    lblFrameAdd: '+ フレームを追加',
+    lblFrameSkip: 'スキップ',
+    lblFrameContinue: '次へ',
+    framePlaceholder: 'フレーム名',
   },
   zh: {
     hdrSub: 'MYKITA JAPAN',
@@ -1160,6 +1205,12 @@ const i18n = {
     thanksBody: '感谢您登记MYKITA镜架保修。\n登记已成功保存。\n\n如有任何疑问，欢迎到店咨询。',
     lblDone: '完成',
     namePlaceholder: '您的姓名',
+    lblFrameInfo: '购买的镜架',
+    lblFrameDesc: '请输入您购买的MYKITA镜架名称。如有多件可点击添加，也可跳过此步骤。',
+    lblFrameAdd: '+ 添加镜架',
+    lblFrameSkip: '跳过',
+    lblFrameContinue: '继续',
+    framePlaceholder: '镜架名称',
   },
   ko: {
     hdrSub: 'MYKITA JAPAN',
@@ -1194,6 +1245,12 @@ const i18n = {
     thanksBody: 'MYKITA 프레임을 등록해 주셔서 감사합니다.\n보증 등록이 정상적으로 저장되었습니다.\n\n문의 사항이 있으시면 매장으로 편하게 연락해 주세요.',
     lblDone: '완료',
     namePlaceholder: '이름을 입력해 주세요',
+    lblFrameInfo: '구매하신 프레임',
+    lblFrameDesc: '구매하신 MYKITA 프레임의 이름을 입력해 주세요. 여러 개인 경우 추가할 수 있으며, 건너뛰기도 가능합니다.',
+    lblFrameAdd: '+ 프레임 추가',
+    lblFrameSkip: '건너뛰기',
+    lblFrameContinue: '다음',
+    framePlaceholder: '프레임 이름',
   }
 };
 
@@ -1230,6 +1287,12 @@ function setLang(lang) {
   document.getElementById('e-email').textContent = t.eEmail;
   document.getElementById('e-optin').textContent = t.eOptin;
   document.getElementById('e-agree').textContent = t.eAgree;
+  document.getElementById('lbl-frame-info').textContent = t.lblFrameInfo;
+  document.getElementById('lbl-frame-desc').textContent = t.lblFrameDesc;
+  document.getElementById('lbl-frame-add').textContent = t.lblFrameAdd;
+  document.getElementById('lbl-frame-skip').textContent = t.lblFrameSkip;
+  document.getElementById('lbl-frame-continue').textContent = t.lblFrameContinue;
+  document.querySelectorAll('.frame-input').forEach(el => { el.placeholder = t.framePlaceholder; });
 }
 
 function setLabelWithReq(id, text) {
@@ -1290,7 +1353,8 @@ function handleSubmit() {
     country: country.value,
     countryCode: countryCode,
     lang: currentLang,
-    memberNo: ''
+    memberNo: '',
+    frameNames: purchasedFrames.join(', ')
   };
 
   sendToSheet(record);
@@ -1310,6 +1374,7 @@ function handleSubmit() {
 function resetForm() {
   const ta = document.getElementById('thanks-area');
   const fa = document.getElementById('form-area');
+  const fea = document.getElementById('frame-entry-area');
   const FADE_MS = 450;
 
   ta.style.transition = `opacity ${FADE_MS}ms ease`;
@@ -1319,6 +1384,10 @@ function resetForm() {
     ta.style.display = 'none';
     ta.style.transition = '';
     ta.style.opacity = '';
+
+    fa.style.display = 'none';
+    resetFrameEntry();
+    fea.style.display = 'block';
 
     document.getElementById('f-name').value = '';
     document.getElementById('f-country-input').value = '';
@@ -1336,17 +1405,16 @@ function resetForm() {
     document.querySelectorAll('.err-msg').forEach(el => el.style.display = 'none');
     updateSubmitState();
 
-    fa.style.transition = 'none';
-    fa.style.opacity = '0';
-    fa.style.display = 'block';
-    void fa.offsetWidth;
+    fea.style.transition = 'none';
+    fea.style.opacity = '0';
+    void fea.offsetWidth;
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    fa.style.transition = `opacity ${FADE_MS}ms ease`;
-    fa.style.opacity = '1';
+    fea.style.transition = `opacity ${FADE_MS}ms ease`;
+    fea.style.opacity = '1';
 
     setTimeout(() => {
-      fa.style.transition = '';
-      fa.style.opacity = '';
+      fea.style.transition = '';
+      fea.style.opacity = '';
     }, FADE_MS);
   }, FADE_MS);
 }
@@ -1602,6 +1670,7 @@ function renderAdminTable() {
       <td><span class="email-link" style="color:#185FA5;" onclick="showEmailActions(event, ${r.row})">${escapeHtml(r.email)}</span></td>
       <td><span class="${r.optin === 'Yes' ? 'badge-yes' : 'badge-no'}">${escapeHtml(r.optin)}</span></td>
       <td>${renderFollowupBadge(r)}</td>
+      <td style="font-size:10px; color:var(--mid);">${escapeHtml(r.frameNames || '')}</td>
       <td style="text-transform:uppercase; font-size:10px; color:var(--mid);">${escapeHtml(r.lang)}</td>
       <td><button class="row-delete-btn" onclick="deleteRecord(${r.row})" title="Delete this record" aria-label="Delete this record">&times;</button></td>
     </tr>
@@ -1705,7 +1774,7 @@ function downloadCSV() {
 
   if (records.length === 0) { alert('No records to export.'); return; }
 
-  const header = ['No.', 'Timestamp', 'Name', 'Country', 'Email', 'Email Opt-in', 'Language'];
+  const header = ['No.', 'Timestamp', 'Name', 'Country', 'Email', 'Email Opt-in', 'Frames', 'Language'];
   const rows = records.map((r, i) => [
     i + 1,
     r.timestamp,
@@ -1713,6 +1782,7 @@ function downloadCSV() {
     r.country,
     r.email,
     r.optin,
+    `"${String(r.frameNames || '').replace(/"/g, '""')}"`,
     String(r.lang).toUpperCase()
   ]);
 
@@ -1788,6 +1858,118 @@ async function copyMailText() {
   const original = btn.textContent;
   btn.textContent = 'Copied';
   setTimeout(() => { btn.textContent = original; }, 1500);
+}
+
+// ── FRAME NAME ENTRY ──
+const FRAME_NAMES = [];
+
+let frameRows = [{ id: 0 }];
+let frameRowSeq = 1;
+let purchasedFrames = [];
+
+function renderFrameRowList() {
+  const list = document.getElementById('frame-row-list');
+  list.innerHTML = frameRows.map(row => `
+    <div class="frame-row" data-id="${row.id}">
+      <div class="ac-wrap" id="frame-ac-wrap-${row.id}">
+        <input type="text" class="ac-input frame-input" id="frame-input-${row.id}" autocomplete="off" placeholder="${i18n[currentLang].framePlaceholder || 'Frame name'}">
+        <div class="ac-dropdown" id="frame-dropdown-${row.id}"></div>
+      </div>
+      ${frameRows.length > 1 ? `<button type="button" class="frame-remove-btn" onclick="removeFrameRow(${row.id})" aria-label="Remove">&times;</button>` : ''}
+    </div>
+  `).join('');
+  frameRows.forEach(row => initFrameAutocomplete(row.id));
+}
+
+function addFrameRow() {
+  if (frameRows.length >= 3) return;
+  frameRows.push({ id: frameRowSeq++ });
+  renderFrameRowList();
+}
+
+function removeFrameRow(id) {
+  if (frameRows.length <= 1) return;
+  frameRows = frameRows.filter(r => r.id !== id);
+  renderFrameRowList();
+}
+
+function resetFrameEntry() {
+  frameRows = [{ id: 0 }];
+  frameRowSeq = 1;
+  purchasedFrames = [];
+  renderFrameRowList();
+}
+
+let frameHighlight = -1;
+
+function initFrameAutocomplete(id) {
+  const wrap = document.getElementById('frame-ac-wrap-' + id);
+  const input = document.getElementById('frame-input-' + id);
+  const dropdown = document.getElementById('frame-dropdown-' + id);
+  if (!wrap || !input || !dropdown) return;
+
+  function renderList(query) {
+    const q = query.trim().toLowerCase();
+    const filtered = q
+      ? FRAME_NAMES.filter(n => n.toLowerCase().includes(q))
+      : FRAME_NAMES;
+
+    frameHighlight = -1;
+
+    if (filtered.length === 0) {
+      closeDropdown();
+      return;
+    }
+
+    dropdown.innerHTML = filtered.map(n => `<div class="ac-item" data-value="${escapeHtml(n)}">${escapeHtml(n)}</div>`).join('');
+    wrap.classList.add('open');
+
+    dropdown.querySelectorAll('.ac-item').forEach(item => {
+      item.addEventListener('mousedown', e => {
+        e.preventDefault();
+        input.value = item.dataset.value;
+        closeDropdown();
+      });
+    });
+  }
+
+  function closeDropdown() {
+    wrap.classList.remove('open');
+    dropdown.innerHTML = '';
+    frameHighlight = -1;
+  }
+
+  input.addEventListener('input', () => renderList(input.value));
+  input.addEventListener('focus', () => { if (input.value) renderList(input.value); });
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeDropdown(); input.blur(); }
+  });
+  document.addEventListener('click', e => {
+    if (!wrap.contains(e.target)) closeDropdown();
+  });
+}
+
+function collectFrameNames() {
+  return frameRows
+    .map(row => document.getElementById('frame-input-' + row.id))
+    .filter(input => input && input.value.trim())
+    .map(input => input.value.trim());
+}
+
+function showFormArea() {
+  document.getElementById('frame-entry-area').style.display = 'none';
+  document.getElementById('form-area').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function skipFrameEntry() {
+  purchasedFrames = [];
+  showFormArea();
+}
+
+function continueFrameEntry() {
+  purchasedFrames = collectFrameNames();
+  showFormArea();
 }
 
 // ── COUNTRY AUTOCOMPLETE ──
@@ -2087,6 +2269,7 @@ function initTextScale() {
 }
 
 // ── INIT ──
+renderFrameRowList();
 initAutocomplete();
 initEmailAutocomplete();
 checkAdminMode();
