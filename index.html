@@ -2398,6 +2398,7 @@ function initAdminFrameAutocomplete() {
       parts[parts.length - 1] = ' ' + value;
       input.value = parts.map((p, i) => i === 0 ? p.trim() : p.trim()).join(', ');
       close();
+      saveFrames(input);
     }
 
     function renderList() {
