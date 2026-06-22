@@ -47,6 +47,7 @@ function doPost(e) {
  *   action=admin & password=... & op=delete & row=N → delete row N
  *   action=admin & password=... & op=followup & row=N & status=pending|sent|na → set follow-up status
  *   action=admin & password=... & op=note & row=N & text=... → set staff notes
+ *   action=admin & password=... & op=frames & row=N & text=... → set Frame(s)
  *   action=admin & password=... & op=generate & note=... → generate EN/JA topic phrase from staff notes via Claude API
  *   action=addFrames & email=... & frames=...   → fill in the Frame(s) cell for the customer's most
  *                                                   recent registration row, if it is still blank
@@ -131,6 +132,15 @@ function handleAdminRequest(params) {
       return { ok: false, error: 'invalid row' };
     }
     sheet.getRange(noteRow, 10).setValue(params.text || '');
+    return { ok: true };
+  }
+
+  if (op === 'frames') {
+    var framesRow = parseInt(params.row, 10);
+    if (!framesRow || framesRow < 2 || framesRow > sheet.getLastRow()) {
+      return { ok: false, error: 'invalid row' };
+    }
+    sheet.getRange(framesRow, 9).setValue(params.text || '');
     return { ok: true };
   }
 
