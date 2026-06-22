@@ -994,6 +994,7 @@
     <div id="frame-area">
       <p class="section-label" id="lbl-frame-title">Frames Purchased</p>
       <p class="optin-desc" id="lbl-frame-desc">Please enter the name(s) of the frame(s) you purchased today.</p>
+      <p class="optin-note" id="lbl-frame-note">This field is filled in by store staff.</p>
 
       <div class="field">
         <div class="frame-add-row">
@@ -1095,6 +1096,7 @@
       </div>
       <div id="frame-missing-notice" style="display:none; margin-top:22px;">
         <p class="optin-desc" id="lbl-frame-missing-msg">You haven't entered the frame(s) you purchased.</p>
+        <p class="optin-note" id="lbl-frame-missing-note">Staff: please add the frame(s) before finishing.</p>
         <button type="button" class="frame-skip-btn" id="lbl-frame-missing-btn" onclick="goAddFramesFromThanks()">Add Frames</button>
       </div>
       <button class="submit-btn" id="btn-done" style="margin-top:24px;" onclick="resetForm()">Done</button>
@@ -1263,12 +1265,14 @@ const i18n = {
     lblDone: 'Done',
     namePlaceholder: 'Your full name',
     lblFrameTitle: 'Frames Purchased',
-    lblFrameDesc: 'Please enter the name(s) of the frame(s) you purchased today.',
+    lblFrameDesc: 'Please enter the name(s) of the frame(s) the customer purchased today.',
+    lblFrameNote: 'This field is filled in by store staff.',
     framePlaceholder: 'Type frame name...',
     lblFrameAdd: 'Add',
     lblFrameContinue: 'Continue',
     lblFrameSkip: 'Skip',
-    lblFrameMissingMsg: 'You haven\'t entered the frame(s) you purchased.',
+    lblFrameMissingMsg: 'The frame(s) purchased have not been entered yet.',
+    lblFrameMissingNote: 'Staff: please add the frame(s) before finishing.',
     lblFrameMissingBtn: 'Add Frames',
   },
   ja: {
@@ -1308,11 +1312,13 @@ const i18n = {
     namePlaceholder: 'お名前',
     lblFrameTitle: 'ご購入フレーム',
     lblFrameDesc: '本日ご購入いただいたフレームの名前を入力してください。',
+    lblFrameNote: '※この項目はスタッフが入力します。',
     framePlaceholder: 'フレーム名を入力...',
     lblFrameAdd: '追加',
     lblFrameContinue: '次へ',
     lblFrameSkip: 'スキップ',
-    lblFrameMissingMsg: '購入されたフレームが未入力です。',
+    lblFrameMissingMsg: 'ご購入フレームが未入力です。',
+    lblFrameMissingNote: '※スタッフの方は、フレーム名をご入力ください。',
     lblFrameMissingBtn: 'フレームを追加',
   },
   zh: {
@@ -1351,12 +1357,14 @@ const i18n = {
     lblDone: '完成',
     namePlaceholder: '您的姓名',
     lblFrameTitle: '购买的镜架',
-    lblFrameDesc: '请输入您今天购买的镜架名称。',
+    lblFrameDesc: '请输入顾客今天购买的镜架名称。',
+    lblFrameNote: '※此项目由店员填写。',
     framePlaceholder: '输入镜架名称...',
     lblFrameAdd: '添加',
     lblFrameContinue: '下一步',
     lblFrameSkip: '跳过',
-    lblFrameMissingMsg: '您尚未输入购买的镜架。',
+    lblFrameMissingMsg: '尚未输入购买的镜架。',
+    lblFrameMissingNote: '※请店员填写镜架名称。',
     lblFrameMissingBtn: '添加镜架',
   },
   ko: {
@@ -1396,11 +1404,13 @@ const i18n = {
     namePlaceholder: '이름을 입력해 주세요',
     lblFrameTitle: '구매한 프레임',
     lblFrameDesc: '오늘 구매하신 프레임의 이름을 입력해 주세요.',
+    lblFrameNote: '※이 항목은 직원이 입력합니다.',
     framePlaceholder: '프레임 이름 입력...',
     lblFrameAdd: '추가',
     lblFrameContinue: '다음',
     lblFrameSkip: '건너뛰기',
-    lblFrameMissingMsg: '구매하신 프레임이 입력되지 않았습니다.',
+    lblFrameMissingMsg: '구매하신 프레임이 아직 입력되지 않았습니다.',
+    lblFrameMissingNote: '※직원은 프레임 이름을 입력해 주세요.',
     lblFrameMissingBtn: '프레임 추가',
   }
 };
@@ -1441,11 +1451,13 @@ function setLang(lang) {
   document.getElementById('e-agree').textContent = t.eAgree;
   document.getElementById('lbl-frame-title').textContent = t.lblFrameTitle;
   document.getElementById('lbl-frame-desc').textContent = t.lblFrameDesc;
+  document.getElementById('lbl-frame-note').textContent = t.lblFrameNote;
   document.getElementById('f-frame-input').placeholder = t.framePlaceholder;
   document.getElementById('lbl-frame-add').textContent = t.lblFrameAdd;
   document.getElementById('lbl-frame-continue').textContent = t.lblFrameContinue;
   document.getElementById('lbl-frame-skip').textContent = t.lblFrameSkip;
   document.getElementById('lbl-frame-missing-msg').textContent = t.lblFrameMissingMsg;
+  document.getElementById('lbl-frame-missing-note').textContent = t.lblFrameMissingNote;
   document.getElementById('lbl-frame-missing-btn').textContent = t.lblFrameMissingBtn;
 }
 
