@@ -343,25 +343,6 @@
   }
 
   /* ── FRAME ENTRY ── */
-  .frame-summary-toggle {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--mid);
-    padding: 12px 0;
-    border-top: 0.5px solid var(--border);
-  }
-  .frame-summary-chevron {
-    font-size: 10px;
-    transition: transform 0.2s ease;
-  }
-  .frame-summary-chevron.open { transform: rotate(90deg); }
-  #frame-summary-content { padding-top: 10px; }
   .frame-add-row { display: flex; gap: 8px; align-items: flex-start; }
   .frame-add-row .ac-wrap { flex: 1; }
   .frame-add-btn {
@@ -1097,20 +1078,6 @@
         </label>
       </div>
 
-      <div class="err-msg" id="e-agree" style="margin-top:-10px; margin-bottom:12px;"></div>
-
-      <div class="field" id="frame-summary-box">
-        <div class="frame-summary-toggle" id="frame-summary-toggle" onclick="toggleFrameSummary()">
-          <span id="lbl-frame-summary-label">Frames Purchased</span>
-          <span class="frame-summary-chevron" id="frame-summary-chevron">&#9656;</span>
-        </div>
-        <div id="frame-summary-content" style="display:none;">
-          <div class="frame-tag-list" id="frame-summary-tags"></div>
-          <p class="optin-desc" id="lbl-frame-summary-empty" style="display:none;">No frames added yet.</p>
-          <button type="button" class="frame-skip-btn" id="lbl-frame-summary-edit" onclick="backToFrames()">Edit Frames</button>
-        </div>
-      </div>
-
       <button class="submit-btn" id="lbl-submit" onclick="handleSubmit()">Register Warranty</button>
     </div>
 
@@ -1125,6 +1092,10 @@
         Thank you for registering your MYKITA frame.<br>
         Your warranty has been recorded successfully.<br><br>
         Please visit us in-store if you have any questions.
+      </div>
+      <div id="frame-missing-notice" style="display:none; margin-top:22px;">
+        <p class="optin-desc" id="lbl-frame-missing-msg">You haven't entered the frame(s) you purchased.</p>
+        <button type="button" class="frame-skip-btn" id="lbl-frame-missing-btn" onclick="goAddFramesFromThanks()">Add Frames</button>
       </div>
       <button class="submit-btn" id="btn-done" style="margin-top:24px;" onclick="resetForm()">Done</button>
     </div>
@@ -1297,9 +1268,8 @@ const i18n = {
     lblFrameAdd: 'Add',
     lblFrameContinue: 'Continue',
     lblFrameSkip: 'Skip',
-    lblFrameSummaryLabel: 'Frames Purchased',
-    lblFrameSummaryEmpty: 'No frames added yet.',
-    lblFrameSummaryEdit: 'Edit Frames',
+    lblFrameMissingMsg: 'You haven\'t entered the frame(s) you purchased.',
+    lblFrameMissingBtn: 'Add Frames',
   },
   ja: {
     hdrSub: 'MYKITA JAPAN',
@@ -1342,9 +1312,8 @@ const i18n = {
     lblFrameAdd: '追加',
     lblFrameContinue: '次へ',
     lblFrameSkip: 'スキップ',
-    lblFrameSummaryLabel: 'ご購入フレーム',
-    lblFrameSummaryEmpty: 'フレームが未入力です。',
-    lblFrameSummaryEdit: 'フレームを編集',
+    lblFrameMissingMsg: '購入されたフレームが未入力です。',
+    lblFrameMissingBtn: 'フレームを追加',
   },
   zh: {
     hdrSub: 'MYKITA JAPAN',
@@ -1387,9 +1356,8 @@ const i18n = {
     lblFrameAdd: '添加',
     lblFrameContinue: '下一步',
     lblFrameSkip: '跳过',
-    lblFrameSummaryLabel: '购买的镜架',
-    lblFrameSummaryEmpty: '尚未添加镜架。',
-    lblFrameSummaryEdit: '编辑镜架',
+    lblFrameMissingMsg: '您尚未输入购买的镜架。',
+    lblFrameMissingBtn: '添加镜架',
   },
   ko: {
     hdrSub: 'MYKITA JAPAN',
@@ -1432,9 +1400,8 @@ const i18n = {
     lblFrameAdd: '추가',
     lblFrameContinue: '다음',
     lblFrameSkip: '건너뛰기',
-    lblFrameSummaryLabel: '구매한 프레임',
-    lblFrameSummaryEmpty: '아직 프레임이 입력되지 않았습니다.',
-    lblFrameSummaryEdit: '프레임 편집',
+    lblFrameMissingMsg: '구매하신 프레임이 입력되지 않았습니다.',
+    lblFrameMissingBtn: '프레임 추가',
   }
 };
 
@@ -1478,9 +1445,8 @@ function setLang(lang) {
   document.getElementById('lbl-frame-add').textContent = t.lblFrameAdd;
   document.getElementById('lbl-frame-continue').textContent = t.lblFrameContinue;
   document.getElementById('lbl-frame-skip').textContent = t.lblFrameSkip;
-  document.getElementById('lbl-frame-summary-label').textContent = t.lblFrameSummaryLabel;
-  document.getElementById('lbl-frame-summary-empty').textContent = t.lblFrameSummaryEmpty;
-  document.getElementById('lbl-frame-summary-edit').textContent = t.lblFrameSummaryEdit;
+  document.getElementById('lbl-frame-missing-msg').textContent = t.lblFrameMissingMsg;
+  document.getElementById('lbl-frame-missing-btn').textContent = t.lblFrameMissingBtn;
 }
 
 function setLabelWithReq(id, text) {
@@ -1554,6 +1520,7 @@ function handleSubmit() {
   };
 
   sendToSheet(record);
+  lastSubmittedRecord = record;
 
   document.getElementById('form-area').style.display = 'none';
   const ta = document.getElementById('thanks-area');
@@ -1565,6 +1532,7 @@ function handleSubmit() {
   document.getElementById('thanks-title').textContent = t.thanksTitle;
   document.getElementById('thanks-body').innerHTML = t.thanksBody.replace(/\n/g, '<br>');
   document.getElementById('btn-done').textContent = t.lblDone;
+  document.getElementById('frame-missing-notice').style.display = selectedFrames.length ? 'none' : '';
 }
 
 function resetForm() {
@@ -1584,7 +1552,9 @@ function resetForm() {
     selectedFrames = [];
     document.getElementById('f-frame-input').value = '';
     renderFrameTags();
-    renderFrameSummary();
+    postSubmitFrameEdit = false;
+    lastSubmittedRecord = null;
+    document.getElementById('frame-missing-notice').style.display = 'none';
 
     document.getElementById('f-name').value = '';
     document.getElementById('f-country-input').value = '';
@@ -2226,28 +2196,27 @@ function removeFrame(index) {
   renderFrameTags();
 }
 
-function renderFrameSummary() {
-  const tags = document.getElementById('frame-summary-tags');
-  const empty = document.getElementById('lbl-frame-summary-empty');
-  tags.innerHTML = selectedFrames.map(f => `<span class="frame-tag">${escapeHtml(f)}</span>`).join('');
-  tags.style.display = selectedFrames.length ? '' : 'none';
-  empty.style.display = selectedFrames.length ? 'none' : '';
-  document.getElementById('frame-summary-content').style.display = 'none';
-  document.getElementById('frame-summary-chevron').classList.remove('open');
-}
+let postSubmitFrameEdit = false;
+let lastSubmittedRecord = null;
 
-function toggleFrameSummary() {
-  const content = document.getElementById('frame-summary-content');
-  const chevron = document.getElementById('frame-summary-chevron');
-  const isOpen = content.style.display !== 'none';
-  content.style.display = isOpen ? 'none' : 'block';
-  chevron.classList.toggle('open', !isOpen);
-}
-
-function backToFrames() {
-  document.getElementById('form-area').style.display = 'none';
+function goAddFramesFromThanks() {
+  postSubmitFrameEdit = true;
+  document.getElementById('thanks-area').style.display = 'none';
   document.getElementById('frame-area').style.display = 'block';
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function submitFrameUpdate() {
+  if (!lastSubmittedRecord || !selectedFrames.length) return;
+  document.getElementById('frame-missing-notice').style.display = 'none';
+  try {
+    const qs = new URLSearchParams({
+      action: 'addFrames',
+      email: lastSubmittedRecord.email,
+      frames: selectedFrames.join(', ')
+    });
+    await fetch(SHEET_WEBHOOK_URL + '?' + qs.toString());
+  } catch (e) {}
 }
 
 function proceedFromFrames() {
@@ -2255,13 +2224,25 @@ function proceedFromFrames() {
   if (input.value.trim()) {
     addFrame();
   }
-  renderFrameSummary();
   document.getElementById('frame-area').style.display = 'none';
-  document.getElementById('form-area').style.display = 'block';
+  if (postSubmitFrameEdit) {
+    postSubmitFrameEdit = false;
+    submitFrameUpdate();
+    document.getElementById('thanks-area').style.display = 'block';
+  } else {
+    document.getElementById('form-area').style.display = 'block';
+  }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function skipFrames() {
+  if (postSubmitFrameEdit) {
+    postSubmitFrameEdit = false;
+    document.getElementById('frame-area').style.display = 'none';
+    document.getElementById('thanks-area').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
   selectedFrames = [];
   renderFrameTags();
   proceedFromFrames();
