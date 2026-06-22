@@ -1912,12 +1912,19 @@ function renderAdminTable() {
       <td><span class="email-link" style="color:#185FA5;" onclick="showEmailActions(event, ${r.row})">${escapeHtml(r.email)}</span></td>
       <td><span class="${r.optin === 'Yes' ? 'badge-yes' : 'badge-no'}">${escapeHtml(r.optin)}</span></td>
       <td>${renderFollowupBadge(r)}</td>
-      <td><input type="text" class="note-input" value="${escapeHtml(r.frames || '')}" placeholder="&mdash;" data-row="${r.row}" onblur="saveFrames(this)" onkeydown="if(event.key==='Enter') this.blur();"></td>
+      <td>
+        <div class="ac-wrap admin-frame-wrap">
+          <input type="text" class="note-input admin-frame-input" value="${escapeHtml(r.frames || '')}" placeholder="&mdash;" data-row="${r.row}" autocomplete="off" onblur="saveFrames(this)">
+          <div class="ac-dropdown admin-frame-dropdown"></div>
+        </div>
+      </td>
       <td><input type="text" class="note-input" value="${escapeHtml(r.note || '')}" placeholder="&mdash;" data-row="${r.row}" onblur="saveNote(this)" onkeydown="if(event.key==='Enter') this.blur();"></td>
       <td style="text-transform:uppercase; font-size:10px; color:var(--mid);">${escapeHtml(r.lang)}</td>
       <td><button class="row-delete-btn" onclick="deleteRecord(${r.row})" title="Delete this record" aria-label="Delete this record">&times;</button></td>
     </tr>
   `).join('');
+
+  initAdminFrameAutocomplete();
 }
 
 let emailActionsRecord = null;
@@ -2366,6 +2373,102 @@ function initFrameAutocomplete() {
 
   document.addEventListener('click', e => {
     if (!wrap.contains(e.target)) closeFrameDropdown();
+  });
+}
+
+// ── ADMIN FRAMES AUTOCOMPLETE ──
+function initAdminFrameAutocomplete() {
+  document.querySelectorAll('.admin-frame-input').forEach(input => {
+    const wrap = input.closest('.admin-frame-wrap');
+    const dropdown = wrap.querySelector('.admin-frame-dropdown');
+    let highlight = -1;
+
+    function lastSegment(value) {
+      const parts = value.split(',');
+      return parts[parts.length - 1].trim();
+    }
+
+    function close() {
+      wrap.classList.remove('open');
+      highlight = -1;
+    }
+
+    function selectValue(value) {
+      const parts = input.value.split(',');
+      parts[parts.length - 1] = ' ' + value;
+      input.value = parts.map((p, i) => i === 0 ? p.trim() : p.trim()).join(', ');
+      close();
+    }
+
+    function renderList() {
+      const q = lastSegment(input.value).toLowerCase();
+      const filtered = q
+        ? FRAME_NAMES.filter(f => f.toLowerCase().includes(q))
+            .sort((a, b) => {
+              const aStarts = a.toLowerCase().startsWith(q) ? 0 : 1;
+              const bStarts = b.toLowerCase().startsWith(q) ? 0 : 1;
+              if (aStarts !== bStarts) return aStarts - bStarts;
+              return a.localeCompare(b);
+            })
+            .slice(0, 50)
+        : [];
+
+      highlight = -1;
+
+      if (filtered.length === 0) {
+        close();
+        return;
+      }
+
+      dropdown.innerHTML = filtered.map(f => {
+        const idx = f.toLowerCase().indexOf(q);
+        const before = f.slice(0, idx);
+        const match = f.slice(idx, idx + q.length);
+        const after = f.slice(idx + q.length);
+        return `<div class="ac-item" data-value="${f}">${before}<mark>${match}</mark>${after}</div>`;
+      }).join('');
+
+      dropdown.querySelectorAll('.ac-item').forEach(item => {
+        item.addEventListener('mousedown', e => {
+          e.preventDefault();
+          selectValue(item.dataset.value);
+        });
+      });
+
+      wrap.classList.add('open');
+    }
+
+    input.addEventListener('input', renderList);
+    input.addEventListener('focus', renderList);
+
+    input.addEventListener('keydown', e => {
+      const items = dropdown.querySelectorAll('.ac-item');
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        highlight = Math.min(highlight + 1, items.length - 1);
+        items.forEach((it, i) => it.classList.toggle('highlighted', i === highlight));
+        if (items[highlight]) items[highlight].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        highlight = Math.max(highlight - 1, 0);
+        items.forEach((it, i) => it.classList.toggle('highlighted', i === highlight));
+        if (items[highlight]) items[highlight].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (highlight >= 0 && items[highlight]) {
+          selectValue(items[highlight].dataset.value);
+        } else {
+          close();
+          input.blur();
+        }
+      } else if (e.key === 'Escape') {
+        close();
+      }
+    });
+
+    document.addEventListener('mousedown', e => {
+      if (!wrap.contains(e.target)) close();
+    });
   });
 }
 
