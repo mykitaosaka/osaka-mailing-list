@@ -1844,6 +1844,32 @@ async function saveNote(input) {
   }
 }
 
+// ── FRAMES (ADMIN EDIT) ──
+async function saveFrames(input) {
+  const row = parseInt(input.dataset.row, 10);
+  const record = adminRecords.find(r => r.row === row);
+  if (!record) return;
+  const text = input.value.trim();
+  if (text === (record.frames || '')) return;
+
+  input.disabled = true;
+  try {
+    const json = await adminRequest({ op: 'frames', row: row, text: text });
+    if (json.ok) {
+      record.frames = text;
+      input.value = text;
+    } else {
+      input.value = record.frames || '';
+      alert('Failed to save frames. Please try again.');
+    }
+  } catch (err) {
+    input.value = record.frames || '';
+    alert('Connection error. Please try again.');
+  } finally {
+    input.disabled = false;
+  }
+}
+
 let sortOrder = 'desc';
 
 function toggleSortOrder() {
@@ -1886,7 +1912,7 @@ function renderAdminTable() {
       <td><span class="email-link" style="color:#185FA5;" onclick="showEmailActions(event, ${r.row})">${escapeHtml(r.email)}</span></td>
       <td><span class="${r.optin === 'Yes' ? 'badge-yes' : 'badge-no'}">${escapeHtml(r.optin)}</span></td>
       <td>${renderFollowupBadge(r)}</td>
-      <td style="font-size:10px; color:var(--mid);">${escapeHtml(r.frames || '')}</td>
+      <td><input type="text" class="note-input" value="${escapeHtml(r.frames || '')}" placeholder="&mdash;" data-row="${r.row}" onblur="saveFrames(this)" onkeydown="if(event.key==='Enter') this.blur();"></td>
       <td><input type="text" class="note-input" value="${escapeHtml(r.note || '')}" placeholder="&mdash;" data-row="${r.row}" onblur="saveNote(this)" onkeydown="if(event.key==='Enter') this.blur();"></td>
       <td style="text-transform:uppercase; font-size:10px; color:var(--mid);">${escapeHtml(r.lang)}</td>
       <td><button class="row-delete-btn" onclick="deleteRecord(${r.row})" title="Delete this record" aria-label="Delete this record">&times;</button></td>
