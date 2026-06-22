@@ -1186,6 +1186,15 @@
         <label>Template</label>
         <select class="mail-template-select" id="mail-template-select" onchange="applyMailTemplate()"></select>
       </div>
+      <div class="mail-modal-field">
+        <label>Staff</label>
+        <select class="mail-template-select" id="mail-staff-select" onchange="onMailStaffChange()">
+          <option value="KEN">KEN</option>
+          <option value="KUREHA">KUREHA</option>
+          <option value="OSAMU">OSAMU</option>
+          <option value="SHUN">SHUN</option>
+        </select>
+      </div>
       <div class="mail-modal-field" id="mail-ai-row" style="display:none;">
         <button type="button" class="mail-ja-toggle-btn" id="mail-ai-generate" onclick="generateAiTopic()">AIで話題フレーズを生成</button>
         <span class="mail-ai-status" id="mail-ai-status">ノートの内容を反映するにはクリックしてください</span>
@@ -2070,8 +2079,8 @@ const MAIL_TEMPLATES = [
   {
     id: 'confirmation',
     label: 'Thank You / Registration Confirmation',
-    body: (r) => { const v = getVisitPhrase(r.timestamp); return `Dear ${r.name}-san,\n\nThank you very much for visiting our store ${v.en}.\n\nIt was a pleasure meeting you and talking with you.\n\nWe hope you will enjoy your new MYKITA glasses.\nShould you require any maintenance or adjustments, please feel free to visit our store at any time. We would be delighted to assist you.\n\nWe look forward to welcoming you again on your next visit to Japan.\n\n\nKind regards,\n\nMYKITA Osaka\nGoogle Map Link | https://share.google/mw7yBJWFXs3xLcj1Y`; },
-    jaBody: (r) => { const v = getVisitPhrase(r.timestamp); return `${r.name} 様\n\n${v.ja}はご来店いただき、誠にありがとうございました。\n\nお会いしてお話しできましたこと、大変嬉しく思っております。\n\n新しいMYKITAのメガネをお楽しみいただけますと幸いです。\nメンテナンスや調整などが必要な際は、お気軽にいつでもご来店ください。喜んでお手伝いさせていただきます。\n\n次回日本にお越しの際も、お会いできることを楽しみにしております。\n\n\nどうぞよろしくお願いいたします。\n\nMYKITA Osaka\nGoogle Map Link | https://share.google/mw7yBJWFXs3xLcj1Y`; }
+    body: (r) => { const v = getVisitPhrase(r.timestamp); return `Dear ${r.name}-san,\n\nThank you very much for visiting our store ${v.en}.\n\nIt was a pleasure meeting you and talking with you.\n\nWe hope you will enjoy your new MYKITA glasses.\nShould you require any maintenance or adjustments, please feel free to visit our store at any time. We would be delighted to assist you.\n\nWe look forward to welcoming you again on your next visit to Japan.\n\n\nKind regards,\n\nMYKITA Osaka\n${getMailStaffName()}\nGoogle Map Link | https://share.google/mw7yBJWFXs3xLcj1Y`; },
+    jaBody: (r) => { const v = getVisitPhrase(r.timestamp); return `${r.name} 様\n\n${v.ja}はご来店いただき、誠にありがとうございました。\n\nお会いしてお話しできましたこと、大変嬉しく思っております。\n\n新しいMYKITAのメガネをお楽しみいただけますと幸いです。\nメンテナンスや調整などが必要な際は、お気軽にいつでもご来店ください。喜んでお手伝いさせていただきます。\n\n次回日本にお越しの際も、お会いできることを楽しみにしております。\n\n\nどうぞよろしくお願いいたします。\n\nMYKITA Osaka\n${getMailStaffName()}\nGoogle Map Link | https://share.google/mw7yBJWFXs3xLcj1Y`; }
   },
   {
     id: 'confirmation_note',
@@ -2080,12 +2089,12 @@ const MAIL_TEMPLATES = [
       const isAscii = /^[\x00-\x7F]*$/.test(r.note || '');
       const talk = r.aiTopicEn || (r.note && isAscii ? `talking with you about ${r.note}` : 'talking with you');
       const v = getVisitPhrase(r.timestamp);
-      return `Dear ${r.name}-san,\n\nThank you very much for visiting our store ${v.en}.\n\nIt was a pleasure meeting you and ${talk}.\n\nWe hope you will enjoy your new MYKITA glasses.\nShould you require any maintenance or adjustments, please feel free to visit our store at any time. We would be delighted to assist you.\n\nWe look forward to welcoming you again on your next visit to Japan.\n\n\nKind regards,\n\nMYKITA Osaka\nGoogle Map Link | https://share.google/mw7yBJWFXs3xLcj1Y`;
+      return `Dear ${r.name}-san,\n\nThank you very much for visiting our store ${v.en}.\n\nIt was a pleasure meeting you and ${talk}.\n\nWe hope you will enjoy your new MYKITA glasses.\nShould you require any maintenance or adjustments, please feel free to visit our store at any time. We would be delighted to assist you.\n\nWe look forward to welcoming you again on your next visit to Japan.\n\n\nKind regards,\n\nMYKITA Osaka\n${getMailStaffName()}\nGoogle Map Link | https://share.google/mw7yBJWFXs3xLcj1Y`;
     },
     jaBody: (r) => {
       const talk = r.aiTopicJa || (r.note ? `「${r.note}」についてお話しできましたこと` : 'お会いしてお話しできましたこと');
       const v = getVisitPhrase(r.timestamp);
-      return `${r.name} 様\n\n${v.ja}はご来店いただき、誠にありがとうございました。\n\n${talk}、大変嬉しく思っております。\n\n新しいMYKITAのメガネをお楽しみいただけますと幸いです。\nメンテナンスや調整などが必要な際は、お気軽にいつでもご来店ください。喜んでお手伝いさせていただきます。\n\n次回日本にお越しの際も、お会いできることを楽しみにしております。\n\n\nどうぞよろしくお願いいたします。\n\nMYKITA Osaka\nGoogle Map Link | https://share.google/mw7yBJWFXs3xLcj1Y`;
+      return `${r.name} 様\n\n${v.ja}はご来店いただき、誠にありがとうございました。\n\n${talk}、大変嬉しく思っております。\n\n新しいMYKITAのメガネをお楽しみいただけますと幸いです。\nメンテナンスや調整などが必要な際は、お気軽にいつでもご来店ください。喜んでお手伝いさせていただきます。\n\n次回日本にお越しの際も、お会いできることを楽しみにしております。\n\n\nどうぞよろしくお願いいたします。\n\nMYKITA Osaka\n${getMailStaffName()}\nGoogle Map Link | https://share.google/mw7yBJWFXs3xLcj1Y`;
     }
   },
   {
@@ -2099,11 +2108,22 @@ const MAIL_TEMPLATES = [
 let currentMailRecord = null;
 let showJaPreview = false;
 
+function getMailStaffName() {
+  return document.getElementById('mail-staff-select').value;
+}
+
+function onMailStaffChange() {
+  localStorage.setItem('mailStaffName', getMailStaffName());
+  applyMailTemplate();
+}
+
 function openMailCompose(record) {
   currentMailRecord = record;
   currentMailRecord.aiTopicEn = '';
   currentMailRecord.aiTopicJa = '';
   document.getElementById('mail-recipient').textContent = record.name + '  <' + record.email + '>';
+  const staffSelect = document.getElementById('mail-staff-select');
+  staffSelect.value = localStorage.getItem('mailStaffName') || 'KEN';
   const select = document.getElementById('mail-template-select');
   select.innerHTML = MAIL_TEMPLATES.map(t => `<option value="${t.id}">${escapeHtml(t.label)}</option>`).join('');
   select.value = MAIL_TEMPLATES[0].id;
