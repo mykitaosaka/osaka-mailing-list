@@ -48,6 +48,9 @@ function doPost(e) {
  *   action=admin & password=... & op=followup & row=N & status=pending|sent|na → set follow-up status
  *   action=admin & password=... & op=note & row=N & text=... → set staff notes
  *   action=admin & password=... & op=generate & note=... → generate EN/JA topic phrase from staff notes via Claude API
+ *   action=addFrames & email=... & frames=...   → fill in the Frame(s) cell for the customer's most
+ *                                                   recent registration row, if it is still blank
+ *                                                   (used by the customer-facing "Add Frames" follow-up step)
  *
  * To use op=generate, set CLAUDE_API_KEY in Project Settings > Script Properties.
  */
@@ -57,12 +60,39 @@ function doGet(e) {
 
   if (params.action === 'admin') {
     out = handleAdminRequest(params);
+  } else if (params.action === 'addFrames') {
+    out = handleAddFrames(params);
   } else {
     out = { ok: false, error: 'unknown action' };
   }
 
   return ContentService.createTextOutput(JSON.stringify(out))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+function handleAddFrames(params) {
+  var email = params.email || '';
+  var frames = params.frames || '';
+  if (!email || !frames) {
+    return { ok: false, error: 'missing email or frames' };
+  }
+
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) {
+    return { ok: false, error: 'no records' };
+  }
+
+  var values = sheet.getRange(2, 4, lastRow - 1, 6).getValues();
+  for (var i = values.length - 1; i >= 0; i--) {
+    var rowEmail = values[i][0];
+    var existingFrames = values[i][5];
+    if (rowEmail === email && !existingFrames) {
+      sheet.getRange(i + 2, 9).setValue(frames);
+      return { ok: true };
+    }
+  }
+  return { ok: false, error: 'matching row not found' };
 }
 
 function handleAdminRequest(params) {
