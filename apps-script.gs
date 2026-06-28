@@ -6,9 +6,15 @@
  * Spreadsheet column order:
  * Timestamp | 会員番号 | Name | Email | Opt-in | Country | Language | Follow-up Sent | Frame(s) | Staff Notes
  * (会員番号 is filled in manually in the sheet, so it is left blank here.)
+ *
+ * All reads/writes target the sheet named SHEET_NAME below, regardless of which
+ * tab is active in the spreadsheet UI (getActiveSheet() would otherwise follow
+ * whatever tab a person last clicked on, causing silent data loss).
  */
+var SHEET_NAME = 'list_2026';
+
 function doPost(e) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
   var data = JSON.parse(e.postData.contents);
 
   var headers = ['Timestamp', '会員番号', 'Name', 'Email', 'Opt-in', 'Country', 'Language', 'Follow-up Sent', 'Frame(s)', 'Staff Notes'];
@@ -78,7 +84,7 @@ function handleAddFrames(params) {
     return { ok: false, error: 'missing email or frames' };
   }
 
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
   var lastRow = sheet.getLastRow();
   if (lastRow < 2) {
     return { ok: false, error: 'no records' };
@@ -102,7 +108,7 @@ function handleAdminRequest(params) {
     return { ok: false, error: 'invalid password' };
   }
 
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
   var op = params.op || 'list';
 
   if (op === 'delete') {
