@@ -2773,6 +2773,19 @@ function initTextScale() {
   });
 }
 
+// Safari/WebKit does not blur the focused input when a click lands on a
+// non-form element (e.g. a <td> or blank table area) the way Chrome does,
+// so onblur-triggered saves (saveFrames/saveNote) can silently never fire.
+// Force a blur ourselves whenever a click lands outside the active admin
+// input, so the save happens regardless of browser.
+document.addEventListener('mousedown', e => {
+  const active = document.activeElement;
+  if (active && (active.classList.contains('admin-frame-input') || active.classList.contains('note-input')) &&
+      active !== e.target && !active.contains(e.target)) {
+    active.blur();
+  }
+}, true);
+
 // ── INIT ──
 initAutocomplete();
 initEmailAutocomplete();
